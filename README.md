@@ -5,8 +5,9 @@ This repo is a collection of ML tools I have developed for various projects. Eve
 Features
 -
 *Classifiers*
-- Nearest Neighbor
+- Linear Regression
 - Logistic Regression
+- Nearest Neighbor
 
 *Data Processing*
 - CVS file reading
