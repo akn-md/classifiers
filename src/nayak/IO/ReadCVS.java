@@ -1,5 +1,17 @@
 package nayak.IO;
 
+
+/**
+ * Read CVS files
+ * 
+ * Functions:
+ * -read row-specific (continuous) columns
+ * -read column-specific (continuous) rows
+ * -read rows and columns
+ * 
+ * @author Ashwin
+ *
+ */
 public class ReadCVS {
 
 	public static String[] readHeader(String filepath) {
@@ -33,6 +45,60 @@ public class ReadCVS {
 	}
 
 	/**
+	 * Reads the specified rows of a specified column. 
+	 * @param filepath
+	 * @param col
+	 * @param startRow
+	 * @param endRow
+	 * @return
+	 */
+	public static String[] readColumn(String filepath, int col, int startRow, int endRow) {
+		String[] data = new String[endRow - startRow + 1];
+
+		TextIO.readFile(filepath);
+
+		int count = 0, dataCount = 0;
+		while (!TextIO.eof()) {
+			
+			if(count < startRow) {
+				TextIO.getln();
+			} else if(count >= startRow && count <= endRow) {
+				String s = TextIO.getln();
+				String[] row = s.split(",");
+				data[dataCount] = row[col];
+				dataCount++;
+			} else if (count > endRow) {
+				TextIO.getln();
+			}
+			
+			count++;
+		}
+
+		return data;
+	}
+	
+	public static double[] readRow(String filepath, int row, int startCol, int endCol) {
+		double[] data = new double[endCol - startCol + 1];
+		
+		TextIO.readFile(filepath);
+		
+		int count = 0;
+		while(!TextIO.eof()) {
+			if(count == row) {
+				String[] s = TextIO.getln().split(",");
+				for(int i = 0; i < data.length; i++) {
+					data[i] = Double.parseDouble(s[i + startCol]);
+				}
+				count++;
+			} else {
+				TextIO.getln();
+				count++;
+			}
+		}
+		
+		return data;
+	}
+	/**
 	 * Reads specified rows and columns (all inclusive) to 2D double array. 
 	 * @param startCol (first column is 0)
 	 * @param endCol
@@ -46,8 +112,7 @@ public class ReadCVS {
 		double[][] data = new double[numRows][numCols];
 
 		TextIO.readFile(filepath);
-		TextIO.getln();
-
+		
 		int count = 0, dataCount = 0;
 		while (!TextIO.eof()) {
 
