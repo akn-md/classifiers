@@ -1,0 +1,17 @@
+Version 1.0.0 - Simple Logistic Regression
+Description:
+Binary, multivariate, no matrix operations, log squared error cost function
+
+----Train Alg---- ~250Kx30 data matrix
+10 iterations - ~24s - Overall cost=1.478
+100 iterations - 285.279s - Overall cost=1.4999
+
+############################################################################
+Version 1.0.1 
+Added:
+-matrix operations
+
+----Train Alg---- ~250Kx30 data matrix
+10 iterations - 4.737s - Overall cost = 2.536
+100 iterations - 39.951s - Overall cost = 1.382
+1000 iterations - 385.109s - Overall cost = 1.260
