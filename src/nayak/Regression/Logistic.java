@@ -1,5 +1,7 @@
 package nayak.Regression;
+import nayak.Regression.Regression;
 import Jama.Matrix;
+
 
 /**
  * Binary Logistic Regression. (1/(1+e^-x))
@@ -12,6 +14,7 @@ import Jama.Matrix;
  * 		this is convex when used with the logistic function (no local optima)
  * -adaptive learning rate
  * 		new rate = old rate/(1+e/annealing rate)
+ * -batch gradient descent
  * 
  * To Add:
  * -support for multiple classes
@@ -23,61 +26,49 @@ import Jama.Matrix;
  * @author Ashwin
  *
  */
-public class Logistic {
+public class Logistic extends Regression {
 
 	boolean debug = false;
-	boolean useAdaptiveLearningRate = false;
 
 	public static void main(String[] args) {
+		double[][] data = { { 0.0, 1.0 }, { 0.0, 2.0 }, { 0.0, -1.0 }, { 0.0, -2.0 } };
+		double[] labels = { 0, 0, 1, 1 };
+		Logistic l = new Logistic(data, labels);
+		//		l.printOutput();
+		System.out.println(l.calculateOverallCost());
+
+		l.train(100);
+		l.printOutput();
+		l.printEquation();
+		double[] d = { 1.0, 2.0, 10 };
+		System.out.println(l.predict(d));
 	}
-
-	// params
-	double learningRate = 10; // higher the learning rate, faster the convergence
-	double annealingRate = 1000000; // higher the annealing rate, slower the learning rate reduces, faster the convergence
-
-	// new implementation
-	Matrix dataMatrix, thetaMatrix, labelMatrix;
 
 	public Logistic(double[][] data, double[] labels) {
-		labelMatrix = new Matrix(labels, labels.length);
-
-		init(data);
+		super.init(data, labels);
+		learningRate = 10.0;
+		useAdaptiveLearningRate = false;
 	}
-
-	public void train(int numIterations) {
-		for (int i = 0; i < numIterations; i++) {
-			updateTheta();
-			System.out.println(calculateOverallCost());
-		}
-
+	
+	public Logistic(double[][] data, double[] labels, double lr) {
+		super.init(data, labels);
+		learningRate = lr;
+		useAdaptiveLearningRate = false;
 	}
-
-	private void init(double[][] data) {
-		initializeData(data);
-		initializeWeights();
+	
+	public Logistic(double[][] data, double[] labels, double lr, double ar) {
+		super.init(data, labels);
+		learningRate = lr;
+		useAdaptiveLearningRate = true;
+		annealingRate = ar;
 	}
-
-	private void initializeData(double[][] data) {
-		double[][] d = new double[data.length][data[0].length + 1];
-		for (int i = 0; i < data.length; i++) {
-			d[i][0] = 1.0;
-			System.arraycopy(data[i], 0, d[i], 1, data[i].length);
-		}
-
-		dataMatrix = new Matrix(d);
-	}
-
-	private void initializeWeights() {
-		double[] d = new double[dataMatrix.getColumnDimension()];
-		thetaMatrix = new Matrix(d, d.length);
-	}
-
+	
 	/**
 	 * Cost(h(x), y) = -y*log(h(x)) - (1-y)*log(1-(h(x)) 
 	 * -easier way to write cost function
 	 */
-	private double calculateCost(int row, Matrix output) {
-		double actual = labelMatrix.get(row, 0);
+	protected double calculateCost(int row, Matrix output) {
+		double actual = labels.get(row, 0);
 		double predicted = output.get(row, 0);
 
 		if (predicted == 1.0)
@@ -87,29 +78,17 @@ public class Logistic {
 			predicted = 0.0001;
 
 		if (actual == 0.0) {
-			return -1 * Math.log10(1 - predicted);
+			return (-1 * Math.log10(1 - predicted));
 		} else {
-			return -1 * Math.log10(predicted);
+			return (-1 * Math.log10(predicted));
 		}
-		//		return (-1 * actual) * Math.log10(predicted) - (1 - actual) * Math.log10(1 - predicted);
-	}
-
-	public double calculateOverallCost() {
-		Matrix m = getOutput();
-		double cost = 0.0;
-
-		for (int i = 0; i < dataMatrix.getRowDimension(); i++) {
-			cost += calculateCost(i, m);
-		}
-
-		return cost / dataMatrix.getRowDimension();
 	}
 
 	/**
 	 * h(x) = p(y=1|x;theta) = 1/(1+e^-(theta*x))
 	 */
-	private Matrix getOutput() {
-		Matrix m = dataMatrix.times(thetaMatrix);
+	protected Matrix getPredictions() {
+		Matrix m = data.times(weights);
 		for (int i = 0; i < m.getRowDimension(); i++) {
 			double exp = 1 / (1 + Math.exp(-1 * m.get(i, 0)));
 			m.set(i, 0, exp);
@@ -121,7 +100,7 @@ public class Logistic {
 	public double predict(double[] data) {
 		double thetaX = 0.0;
 		for (int i = 0; i < data.length; i++) {
-			thetaX += (thetaMatrix.get(i, 0) * data[i]);
+			thetaX += (weights.get(i, 0) * data[i]);
 		}
 
 		return 1 / (1 + Math.exp(-1 * thetaX));
@@ -146,14 +125,14 @@ public class Logistic {
 	/**
 	 * Using Matrices
 	 */
-	private void updateTheta() {
+	protected void updateTheta() {
 		//				print(dataMatrix);
-		Matrix diffMatrix = getOutput().minus(labelMatrix);
+		Matrix diffMatrix = getPredictions().minus(labels);
 		//				print(diffMatrix);
-		Matrix gradient = dataMatrix.transpose().times(diffMatrix);
+		Matrix gradient = data.transpose().times(diffMatrix);
 		//				print(gradient);
 		//				print(thetaMatrix);
-		thetaMatrix = thetaMatrix.minus(gradient.times(learningRate / dataMatrix.getRowDimension()));
+		weights = weights.minus(gradient.times(learningRate / data.getRowDimension()));
 		//				print(thetaMatrix);
 	}
 
@@ -165,44 +144,9 @@ public class Logistic {
 //		return gradient / data.length;
 //	}
 
-	/**
-	 * new rate = old rate/(1+e/annealing rate)
-	 * @param old learning rate
-	 * @return
-	 */
-	private double calculateLearningRate(double old) {
-		return old / (1 + Math.E / annealingRate);
-	}
-
 //	private void printTheta() {
 //		for (int i = 0; i < theta.length; i++) {
 //			System.out.println("theta[" + i + "] = " + theta[i]);
 //		}
 //	}
-
-	public void printOutput() {
-		Matrix output = getOutput();
-		for (int i = 0; i < dataMatrix.getRowDimension(); i++) {
-			System.out.println("Predicted = " + output.get(i, 0) + ", Actual = " + labelMatrix.get(i, 0) + ", Cost = "
-					+ calculateCost(i, output));
-		}
-	}
-
-	public void printEquation() {
-		System.out.print("y = " + thetaMatrix.get(0, 0));
-		for (int i = 1; i < thetaMatrix.getRowDimension(); i++) {
-			System.out.print(" + " + thetaMatrix.get(i, 0) + "*X" + i);
-		}
-		System.out.println();
-	}
-
-	public void print(Matrix m) {
-		for (int i = 0; i < m.getRowDimension(); i++) {
-			System.out.print("Row " + i + "\t");
-			for (int j = 0; j < m.getColumnDimension(); j++) {
-				System.out.print(m.get(i, j) + "\t");
-			}
-			System.out.println();
-		}
-	}
 }
