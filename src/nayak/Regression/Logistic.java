@@ -1,7 +1,7 @@
 package nayak.Regression;
+
 import nayak.Regression.Regression;
 import Jama.Matrix;
-
 
 /**
  * Binary Logistic Regression. (1/(1+e^-x))
@@ -20,7 +20,6 @@ import Jama.Matrix;
  * -support for multiple classes
  * -different cost functions
  * -support for nonlinear boundaries
- * -feature scaling and centering
  * -conjugate gradient, BFGS, L-BFGS
  * 
  * @author Ashwin
@@ -34,7 +33,7 @@ public class Logistic extends Regression {
 		double[][] data = { { 0.0, 1.0 }, { 0.0, 2.0 }, { 0.0, -1.0 }, { 0.0, -2.0 } };
 		double[] labels = { 0, 0, 1, 1 };
 		Logistic l = new Logistic(data, labels);
-		//		l.printOutput();
+		l.printOutput();
 		System.out.println(l.calculateOverallCost());
 
 		l.train(100);
@@ -45,24 +44,25 @@ public class Logistic extends Regression {
 	}
 
 	public Logistic(double[][] data, double[] labels) {
-		super.init(data, labels);
+		super.init(data, labels, true);
 		learningRate = 10.0;
 		useAdaptiveLearningRate = false;
+		print(this.data);
 	}
-	
+
 	public Logistic(double[][] data, double[] labels, double lr) {
-		super.init(data, labels);
+		super.init(data, labels, true);
 		learningRate = lr;
 		useAdaptiveLearningRate = false;
 	}
-	
+
 	public Logistic(double[][] data, double[] labels, double lr, double ar) {
-		super.init(data, labels);
+		super.init(data, labels, true);
 		learningRate = lr;
 		useAdaptiveLearningRate = true;
 		annealingRate = ar;
 	}
-	
+
 	/**
 	 * Cost(h(x), y) = -y*log(h(x)) - (1-y)*log(1-(h(x)) 
 	 * -easier way to write cost function
@@ -136,17 +136,17 @@ public class Logistic extends Regression {
 		//				print(thetaMatrix);
 	}
 
-//	private double calculateGradient(int col) {
-//		double gradient = 0.0;
-//		for (int i = 0; i < data.length; i++) {
-//			gradient += ((getOutput(i) - labels[i]) * data[i][col]);
-//		}
-//		return gradient / data.length;
-//	}
+	//	private double calculateGradient(int col) {
+	//		double gradient = 0.0;
+	//		for (int i = 0; i < data.length; i++) {
+	//			gradient += ((getOutput(i) - labels[i]) * data[i][col]);
+	//		}
+	//		return gradient / data.length;
+	//	}
 
-//	private void printTheta() {
-//		for (int i = 0; i < theta.length; i++) {
-//			System.out.println("theta[" + i + "] = " + theta[i]);
-//		}
-//	}
+	//	private void printTheta() {
+	//		for (int i = 0; i < theta.length; i++) {
+	//			System.out.println("theta[" + i + "] = " + theta[i]);
+	//		}
+	//	}
 }

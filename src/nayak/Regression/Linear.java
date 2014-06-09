@@ -33,7 +33,7 @@ public class Linear extends Regression {
 	}
 	
 	public Linear(double[][] data, double[] labels) {
-		super.init(data, labels);
+		super.init(data, labels, true);
 	}
 
 	

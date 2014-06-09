@@ -2,6 +2,18 @@ package nayak.Regression;
 
 import Jama.Matrix;
 
+/**
+ * Abstract Regression class
+ * 
+ * Features:
+ * -matrix operations
+ * -feature scaling (mean normalization)
+ * 
+ * To Add:
+ * 
+ * @author Ashwin
+ *
+ */
 public abstract class Regression {
 
 	protected Matrix data, weights, labels;
@@ -18,7 +30,7 @@ public abstract class Regression {
 	 * Initializes data, weight, and label matrices. Adds ones to data.
 	 * @param data
 	 */
-	protected void init(double[][] data, double[] labels) {
+	protected void init(double[][] data, double[] labels, boolean sf) {
 		// initialize data
 		double[][] d = new double[data.length][data[0].length + 1];
 		for (int i = 0; i < data.length; i++) {
@@ -34,6 +46,31 @@ public abstract class Regression {
 
 		// initialize labels
 		this.labels = new Matrix(labels, labels.length);
+		
+		if(sf)
+			scaleFeatures();
+	}
+	
+	protected void scaleFeatures() {
+		for(int i = 1; i < data.getColumnDimension(); i++) {
+			double average = 0.0;
+			double min = Double.MAX_VALUE;
+			double max = Double.MIN_VALUE;
+			for(int j = 0; j < data.getRowDimension(); j++) {
+				double d = data.get(j, i);
+				average += d;
+				min = (d < min) ? d : min;
+				max = (d > max) ? d : max;
+			}
+			average /= data.getRowDimension();
+			double range = max - min;
+			for(int j = 0; j < data.getRowDimension(); j++) {
+				double d = data.get(j, i);
+				d -= average;
+				d /= range;
+				data.set(j, i, d);
+			}
+		}
 	}
 	
 	/**
