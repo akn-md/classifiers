@@ -25,7 +25,7 @@ Features
 Coming Soon
 -
 - Model selection (to select appropriate amount of features)
-- Factor Analysis
 - ANNs
+- SVMs
 
 
