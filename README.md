@@ -25,7 +25,7 @@ Features
 Coming Soon
 -
 - Model selection (to select appropriate amount of features)
-- Regularization (to avoid overfitting)
-- ANN
+- Factor Analysis
+- ANNs
 
 
