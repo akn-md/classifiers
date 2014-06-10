@@ -22,4 +22,10 @@ Features
 - Correlation
 - Other basic descriptive measures
 
+Coming Soon
+-
+- Model selection (to select appropriate amount of features)
+- Regularization (to avoid overfitting)
+- ANN
+
 
