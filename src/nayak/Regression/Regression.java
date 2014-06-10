@@ -1,5 +1,8 @@
 package nayak.Regression;
 
+import java.beans.FeatureDescriptor;
+import java.io.Serializable;
+
 import Jama.Matrix;
 
 /**
@@ -7,20 +10,27 @@ import Jama.Matrix;
  * 
  * Features:
  * -matrix operations
- * -feature scaling (mean normalization)
  * 
  * To Add:
  * 
  * @author Ashwin
  *
  */
-public abstract class Regression {
+public abstract class Regression implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5903144327657084197L;
+	
 	protected Matrix data, weights, labels;
 	protected double learningRate; // higher the learning rate, faster the convergence
 	protected double annealingRate; // higher the annealing rate, slower the learning rate reduces, faster the convergence
 	protected boolean useAdaptiveLearningRate;
 	
+	//////////////////////////
+	//// Abstract Methods ////
+	//////////////////////////
 	abstract protected void updateTheta();
 	abstract protected double calculateCost(int row, Matrix predictions);
 	abstract protected Matrix getPredictions();
@@ -30,15 +40,8 @@ public abstract class Regression {
 	 * Initializes data, weight, and label matrices. Adds ones to data.
 	 * @param data
 	 */
-	protected void init(double[][] data, double[] labels, boolean sf) {
-		// initialize data
-		double[][] d = new double[data.length][data[0].length + 1];
-		for (int i = 0; i < data.length; i++) {
-			d[i][0] = 1.0;
-			System.arraycopy(data[i], 0, d[i], 1, data[i].length);
-		}
-
-		this.data = new Matrix(d);
+	protected void init(double[][] data, double[] labels) {
+		this.data = new Matrix(data);
 		
 		// initialize weights
 		double[] dd = new double[this.data.getColumnDimension()];
@@ -46,31 +49,6 @@ public abstract class Regression {
 
 		// initialize labels
 		this.labels = new Matrix(labels, labels.length);
-		
-		if(sf)
-			scaleFeatures();
-	}
-	
-	protected void scaleFeatures() {
-		for(int i = 1; i < data.getColumnDimension(); i++) {
-			double average = 0.0;
-			double min = Double.MAX_VALUE;
-			double max = Double.MIN_VALUE;
-			for(int j = 0; j < data.getRowDimension(); j++) {
-				double d = data.get(j, i);
-				average += d;
-				min = (d < min) ? d : min;
-				max = (d > max) ? d : max;
-			}
-			average /= data.getRowDimension();
-			double range = max - min;
-			for(int j = 0; j < data.getRowDimension(); j++) {
-				double d = data.get(j, i);
-				d -= average;
-				d /= range;
-				data.set(j, i, d);
-			}
-		}
 	}
 	
 	/**
@@ -80,6 +58,7 @@ public abstract class Regression {
 	public void train(int numIterations) {
 		for (int i = 0; i < numIterations; i++) {
 			updateTheta();
+			System.out.println(calculateOverallCost());
 		}
 
 	}
@@ -112,6 +91,10 @@ public abstract class Regression {
 	///////// Helpers /////////
 	///////////////////////////
 	
+	public void printWeights() {
+		print(weights);
+	}
+	
 	public void printOutput() {
 		Matrix output = getPredictions();
 		for (int i = 0; i < data.getRowDimension(); i++) {
@@ -128,7 +111,7 @@ public abstract class Regression {
 		System.out.println();
 	}
 
-	public void print(Matrix m) {
+	protected void print(Matrix m) {
 		for (int i = 0; i < m.getRowDimension(); i++) {
 			System.out.print("Row " + i + "\t");
 			for (int j = 0; j < m.getColumnDimension(); j++) {

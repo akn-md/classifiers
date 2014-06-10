@@ -1,5 +1,7 @@
 package nayak.Regression;
 
+import java.io.Serializable;
+
 import Jama.Matrix;
 
 /**
@@ -15,7 +17,12 @@ import Jama.Matrix;
  * @author Ashwin
  *
  */
-public class Linear extends Regression {
+public class Linear extends Regression implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6511317479353788529L;
 
 	public static void main(String[] args) {
 		double[][] data = { { 2104, 5, 1, 45 }, { 1416, 3, 2, 40 }, { 1534, 3, 2, 30 }, { 852, 2, 1, 36 } };
@@ -33,7 +40,7 @@ public class Linear extends Regression {
 	}
 	
 	public Linear(double[][] data, double[] labels) {
-		super.init(data, labels, true);
+		super.init(data, labels);
 	}
 
 	

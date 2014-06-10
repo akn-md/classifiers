@@ -15,3 +15,21 @@ Added:
 10 iterations - 4.737s - Overall cost = 2.536
 100 iterations - 39.951s - Overall cost = 1.382
 1000 iterations - 385.109s - Overall cost = 1.260
+
+############################################################################
+Version 1.0.2
+Added:
+-feature scaling
+
+----Train Alg---- ~250Kx30 data matrix, learning rate = 10.0
+10 iterations - 3.479s - Overall cost = 0.270
+100 iterations - 32.165s - Overall cost = 0.239
+1000 iterations - 441.732s - Overall cost = 0.224
+10000 iterations - 3253.929s - Overall cost = 0.217
+
+----Train Alg---- ~250Kx30 data matrix, learning rate = 1.0
+10 iterations - 3.914s - Overall cost = 0.268
+100 iterations - 33.028s - Overall cost = 0.254
+1000 iterations - 331.223s - Overall cost = 0.239
+
+

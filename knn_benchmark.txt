@@ -1,0 +1,28 @@
+Version 1.0.0 - Simple Nearest Neighbor
+Description:
+No dimensionality reduction, no k, no weighted features. Just finding the single nearest neighbor and assigning that class.
+Uses a 2d array of doubles to hold data and calculate euclidean distance.
+
+----Reading Data----
+-All 30 feature columns
+All 250000 rows: 3.177s, 3.058s, 3.398s
+25000 rows: 0.745s, 0.831s, 0.798s
+2500 rows: 0.422s, 0.422s, 0.345s
+
+----Reading Labels----
+-Last label column, all rows
+2.155s, 2.226s, 2.202s
+
+----Train Alg----
+All but one instance: 0.001s, 0.001s, 0.001s
+
+----Classify New Instance----
+249999 training instances: 1.85s, 1.866s, 1.835s
+249999 training instances with PCA (k=30): 0.84, 0.91, 0.865
+249999 training instances with PCA (k=20): 0.57, 0.579, 0.568
+249999 training instances with PCA (k=10): 0.286, 0.291, 0.284
+249999 training instances with PCA (k=5): 0.192, 0.172, 0.156
+249999 training instances with PCA (k=3): 0.103, 0.108, 0.107
+249999 training instances with PCA (k=1): 0.042, 0.05, 0.05 // Would take about 7 hours to test all instances
+
+Need it to be 0.0065s in order to classify all 550000 instances in one hour 

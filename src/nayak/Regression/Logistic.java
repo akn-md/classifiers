@@ -1,5 +1,7 @@
 package nayak.Regression;
 
+import java.io.Serializable;
+
 import nayak.Regression.Regression;
 import Jama.Matrix;
 
@@ -25,8 +27,13 @@ import Jama.Matrix;
  * @author Ashwin
  *
  */
-public class Logistic extends Regression {
+public class Logistic extends Regression implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2305691582525372686L;
+	
 	boolean debug = false;
 
 	public static void main(String[] args) {
@@ -44,20 +51,19 @@ public class Logistic extends Regression {
 	}
 
 	public Logistic(double[][] data, double[] labels) {
-		super.init(data, labels, true);
+		super.init(data, labels);
 		learningRate = 10.0;
 		useAdaptiveLearningRate = false;
-		print(this.data);
 	}
 
 	public Logistic(double[][] data, double[] labels, double lr) {
-		super.init(data, labels, true);
+		super.init(data, labels);
 		learningRate = lr;
 		useAdaptiveLearningRate = false;
 	}
 
 	public Logistic(double[][] data, double[] labels, double lr, double ar) {
-		super.init(data, labels, true);
+		super.init(data, labels);
 		learningRate = lr;
 		useAdaptiveLearningRate = true;
 		annealingRate = ar;
@@ -142,11 +148,5 @@ public class Logistic extends Regression {
 	//			gradient += ((getOutput(i) - labels[i]) * data[i][col]);
 	//		}
 	//		return gradient / data.length;
-	//	}
-
-	//	private void printTheta() {
-	//		for (int i = 0; i < theta.length; i++) {
-	//			System.out.println("theta[" + i + "] = " + theta[i]);
-	//		}
 	//	}
 }
