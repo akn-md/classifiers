@@ -14,6 +14,7 @@ Features
 - Feature Scaling
 - Handling of unknown values
 - Java Serialization and easy File I/O
+- Cross-validation
 
 *Dimensionality Reduction*
 - PCA
@@ -24,7 +25,6 @@ Features
 
 Coming Soon
 -
-- Cross validation
 - Model selection (to select appropriate amount of features)
 - ANN
 - SVM
