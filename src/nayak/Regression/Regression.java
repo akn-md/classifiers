@@ -10,8 +10,12 @@ import Jama.Matrix;
  * 
  * Features:
  * -matrix operations
+ * -adaptive learning rate
+ * 		new rate = old rate/(1+e/annealing rate)
  * 
  * To Add:
+ * -support for multiple classes
+ * -support for nonlinear boundaries
  * 
  * @author Ashwin
  *
@@ -26,7 +30,8 @@ public abstract class Regression implements Serializable {
 	protected Matrix data, weights, labels;
 	protected double learningRate; // higher the learning rate, faster the convergence
 	protected double annealingRate; // higher the annealing rate, slower the learning rate reduces, faster the convergence
-	protected boolean useAdaptiveLearningRate;
+	protected boolean useAdaptiveLearningRate, regularizeWeights;
+	protected double regularizationCoefficient = 1.0;
 	
 	//////////////////////////
 	//// Abstract Methods ////
@@ -40,8 +45,10 @@ public abstract class Regression implements Serializable {
 	 * Initializes data, weight, and label matrices. Adds ones to data.
 	 * @param data
 	 */
-	protected void init(double[][] data, double[] labels) {
+	protected void init(double[][] data, double[] labels, boolean ualr, boolean rw) {
 		this.data = new Matrix(data);
+		this.useAdaptiveLearningRate = ualr;
+		this.regularizeWeights = rw;
 		
 		// initialize weights
 		double[] dd = new double[this.data.getColumnDimension()];

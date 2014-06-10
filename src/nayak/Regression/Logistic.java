@@ -14,14 +14,11 @@ import Jama.Matrix;
  * 		-(-log(1-squared error) if y=0)
  * 		-Unlike linear regression's squared error cost function (1/2(actual-predicted)^2), 
  * 		this is convex when used with the logistic function (no local optima)
- * -adaptive learning rate
- * 		new rate = old rate/(1+e/annealing rate)
  * -batch gradient descent
+ * -regularization for batch gradient descent
  * 
  * To Add:
- * -support for multiple classes
  * -different cost functions
- * -support for nonlinear boundaries
  * -conjugate gradient, BFGS, L-BFGS
  * 
  * @author Ashwin
@@ -37,35 +34,30 @@ public class Logistic extends Regression implements Serializable {
 	boolean debug = false;
 
 	public static void main(String[] args) {
-		double[][] data = { { 0.0, 1.0 }, { 0.0, 2.0 }, { 0.0, -1.0 }, { 0.0, -2.0 } };
+		double[][] data = { { 1.0, 0.0, 1.0 }, { 1.0, 0.0, 2.0 }, {1.0, 0.0, -1.0 }, { 1.0, 0.0, -2.0 } };
 		double[] labels = { 0, 0, 1, 1 };
-		Logistic l = new Logistic(data, labels);
-		l.printOutput();
-		System.out.println(l.calculateOverallCost());
+		Logistic l = new Logistic(data, labels, true);
 
 		l.train(100);
 		l.printOutput();
-		l.printEquation();
 		double[] d = { 1.0, 2.0, 10 };
 		System.out.println(l.predict(d));
+		l.printWeights();
 	}
 
-	public Logistic(double[][] data, double[] labels) {
-		super.init(data, labels);
-		learningRate = 10.0;
-		useAdaptiveLearningRate = false;
+	public Logistic(double[][] data, double[] labels, boolean regularize) {
+		super.init(data, labels, false, regularize);
+		learningRate = 1.0;
 	}
 
 	public Logistic(double[][] data, double[] labels, double lr) {
-		super.init(data, labels);
+		super.init(data, labels, false, false);
 		learningRate = lr;
-		useAdaptiveLearningRate = false;
 	}
 
 	public Logistic(double[][] data, double[] labels, double lr, double ar) {
-		super.init(data, labels);
+		super.init(data, labels, true, false);
 		learningRate = lr;
-		useAdaptiveLearningRate = true;
 		annealingRate = ar;
 	}
 
@@ -135,10 +127,17 @@ public class Logistic extends Regression implements Serializable {
 		//				print(dataMatrix);
 		Matrix diffMatrix = getPredictions().minus(labels);
 		//				print(diffMatrix);
-		Matrix gradient = data.transpose().times(diffMatrix);
-		//				print(gradient);
+		double aOverM = learningRate/data.getRowDimension();
+		Matrix gradient = (data.transpose().times(diffMatrix)).times(aOverM);
+//						print(gradient);
 		//				print(thetaMatrix);
-		weights = weights.minus(gradient.times(learningRate / data.getRowDimension()));
+		if(regularizeWeights) {
+			double interceptWeight = weights.get(0, 0); // don't perform regularization on intercept weight
+			double multiplier = 1-learningRate*(regularizationCoefficient/data.getRowDimension());
+			weights = weights.times(multiplier);
+			weights.set(0, 0, interceptWeight);
+		}
+		weights = weights.minus(gradient);
 		//				print(thetaMatrix);
 	}
 

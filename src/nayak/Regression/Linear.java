@@ -10,9 +10,11 @@ import Jama.Matrix;
  * Features:
  * -Least-squares cost function
  * -Normal equation method (use if n < 1000)
+ * -Regularization for normal equation method
  * 
  * To Add:
- * 
+ * -batch gradient descent
+ * -regularization for gradient descent (theta = theta_old - alpha*(1/m)*Summation(predicted-actual)*value + (lambda/m)*theta_old) 
  * 
  * @author Ashwin
  *
@@ -25,44 +27,50 @@ public class Linear extends Regression implements Serializable {
 	private static final long serialVersionUID = -6511317479353788529L;
 
 	public static void main(String[] args) {
-		double[][] data = { { 2104, 5, 1, 45 }, { 1416, 3, 2, 40 }, { 1534, 3, 2, 30 }, { 852, 2, 1, 36 } };
+		double[][] data = { { 1, 2104, 5, 1, 45 }, { 1, 1416, 3, 2, 40 }, { 1, 1534, 3, 2, 30 }, { 1, 852, 2, 1, 36 } };
 		double[] labels = { 460, 232, 315, 178 };
-		Linear l = new Linear(data, labels);
-		//		l.printOutput();
+		Linear l = new Linear(data, labels, true);
+		l.solveNormalEquation();
 		System.out.println(l.calculateOverallCost());
-
-		l.train(1);
-		System.out.println(l.calculateOverallCost());
-//		l.printOutput();
-//		l.printEquation();
-//		double[] d = { 1.0, 2.0, 10 };
-//		System.out.println(l.predict(d));
+		l.printOutput();
+		l.printWeights();
+		//		l.printEquation();
+		//		double[] d = { 1.0, 2.0, 10 };
+		//		System.out.println(l.predict(d));
 	}
-	
+
 	public Linear(double[][] data, double[] labels) {
-		super.init(data, labels);
+		super.init(data, labels, false, false);
 	}
 
-	
+	public Linear(double[][] data, double[] labels, boolean regularize) {
+		super.init(data, labels, false, regularize);
+	}
+
 	@Override
 	protected void updateTheta() {
-		
+
 	}
 
 	/**
 	 * weights = (X'*X)^-1*X'y
 	 */
 	public void solveNormalEquation() {
-		print(weights);
-		// TODO Auto-generated method stub
-		Matrix m = (data.transpose().times(data)).inverse();
-//		print(m);
+		Matrix m;
+		if (regularizeWeights) {
+			// resulting matrix m will NOT be singular because of regularization coefficient
+			Matrix identity = Matrix.identity(weights.getRowDimension(), weights.getRowDimension());
+			identity.set(0, 0, 0.0);
+			identity.times(regularizationCoefficient);
+			m = ((data.transpose().times(data)).plus(identity)).inverse();
+		} else {
+			m = (data.transpose().times(data)).inverse();
+		}
+
 		Matrix m1 = data.transpose().times(labels);
-//		print(m1);
 		weights = m.times(m1);
-		print(weights);
 	}
-	
+
 	@Override
 	protected double calculateCost(int row, Matrix predictions) {
 		double actual = labels.get(row, 0);
@@ -70,7 +78,7 @@ public class Linear extends Regression implements Serializable {
 
 		System.out.println(actual + "," + predicted);
 
-		return Math.pow((actual - predicted), 2)/2;
+		return Math.pow((actual - predicted), 2) / 2;
 	}
 
 	@Override

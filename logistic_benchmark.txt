@@ -32,4 +32,12 @@ Added:
 100 iterations - 33.028s - Overall cost = 0.254
 1000 iterations - 331.223s - Overall cost = 0.239
 
+----Train Alg---- ~250Kx30 data matrix, learning rate = 10.0 - only primitive features
+10 iterations - 2.155s - Overall cost = 0.311
+100 iterations - 22.074 - Overall cost = 0.305
+
+----Train Alg---- ~250Kx30 data matrix, learning rate = 10.0 - only derived features
+10 iterations - 1.943s - Overall cost = 0.270
+100 iterations - 20.421s - Overall cost = 0.239
+
 
