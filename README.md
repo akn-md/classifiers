@@ -11,6 +11,8 @@ Features
 
 *Data Processing*
 - CVS file reading
+- Feature Scaling
+- Handling of unknown values
 - Java Serialization and easy File I/O
 
 *Dimensionality Reduction*
