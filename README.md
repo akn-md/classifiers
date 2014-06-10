@@ -24,8 +24,9 @@ Features
 
 Coming Soon
 -
+- Cross validation
 - Model selection (to select appropriate amount of features)
-- ANNs
-- SVMs
+- ANN
+- SVM
 
 
