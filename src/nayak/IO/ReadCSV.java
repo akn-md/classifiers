@@ -2,7 +2,7 @@ package nayak.IO;
 
 
 /**
- * Read CVS files
+ * Read CSV files
  * 
  * Functions:
  * -read row-specific (continuous) columns
@@ -12,7 +12,7 @@ package nayak.IO;
  * @author Ashwin
  *
  */
-public class ReadCVS {
+public class ReadCSV {
 
 	public static String[] readHeader(String filepath) {
 		TextIO.readFile(filepath);

@@ -1,25 +1,36 @@
-Version 1.0.0 - Simple Logistic Regression
+Version 1.0.0 - Simple Logistic Regression - 6/1/14
 Description:
 Binary, multivariate, no matrix operations, log squared error cost function
 
+Tested With:
+Higgs Project
+
+Results:
 ----Train Alg---- ~250Kx30 data matrix
 10 iterations - ~24s - Overall cost=1.478
 100 iterations - 285.279s - Overall cost=1.4999
 
 ############################################################################
-Version 1.0.1 
+Version 1.0.1 - 6/5/14
 Added:
 -matrix operations
 
+Tested With:
+Higgs Project
+
+Results:
 ----Train Alg---- ~250Kx30 data matrix
 10 iterations - 4.737s - Overall cost = 2.536
 100 iterations - 39.951s - Overall cost = 1.382
 1000 iterations - 385.109s - Overall cost = 1.260
 
 ############################################################################
-Version 1.0.2
+Version 1.0.2 - 6/8/14
 Added:
 -feature scaling
+
+Tested With:
+Higgs Project
 
 ----Train Alg---- ~250Kx30 data matrix, learning rate = 10.0
 10 iterations - 3.479s - Overall cost = 0.270
@@ -32,12 +43,21 @@ Added:
 100 iterations - 33.028s - Overall cost = 0.254
 1000 iterations - 331.223s - Overall cost = 0.239
 
-----Train Alg---- ~250Kx30 data matrix, learning rate = 10.0 - only primitive features
+----Train Alg---- ~250Kx15 data matrix, learning rate = 10.0 - only primitive features
 10 iterations - 2.155s - Overall cost = 0.311
 100 iterations - 22.074 - Overall cost = 0.305
 
-----Train Alg---- ~250Kx30 data matrix, learning rate = 10.0 - only derived features
+----Train Alg---- ~250Kx14 data matrix, learning rate = 10.0 - only derived features
 10 iterations - 1.943s - Overall cost = 0.270
 100 iterations - 20.421s - Overall cost = 0.239
 
+----Train Alg---- ~150Kx14 data matrix, learning rate = 10.0 - only derived features
+10 iterations - 1.77s - Overall cost = 0.270
+100 iterations - 15.498 - Overall cost = 0.239
+
+############################################################################
+Version 1.0.3 - 6/10/14
+Added:
+-regularization
+-cross-validation
 

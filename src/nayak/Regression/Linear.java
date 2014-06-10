@@ -2,6 +2,9 @@ package nayak.Regression;
 
 import java.io.Serializable;
 
+import nayak.Abstract.Classifier;
+import nayak.Abstract.Regression;
+import nayak.Data.Crossvalidation;
 import Jama.Matrix;
 
 /**
@@ -13,6 +16,7 @@ import Jama.Matrix;
  * -Regularization for normal equation method
  * 
  * To Add:
+ * -calculate cost differently if using regularization (add regularization term)
  * -batch gradient descent
  * -regularization for gradient descent (theta = theta_old - alpha*(1/m)*Summation(predicted-actual)*value + (lambda/m)*theta_old) 
  * 
@@ -29,22 +33,28 @@ public class Linear extends Regression implements Serializable {
 	public static void main(String[] args) {
 		double[][] data = { { 1, 2104, 5, 1, 45 }, { 1, 1416, 3, 2, 40 }, { 1, 1534, 3, 2, 30 }, { 1, 852, 2, 1, 36 } };
 		double[] labels = { 460, 232, 315, 178 };
-		Linear l = new Linear(data, labels, true);
+		
+		Crossvalidation cv = new Crossvalidation(data, labels, 1123);
+		cv.generateRandomSet(0.5);
+		Linear l = new Linear(cv.getTrainingSet(), cv.getValidationSet(), cv.getTestingSet(), cv.getTrainingLabels(),
+				cv.getValidationLabels(), cv.getTestingLabels(), false, true);
 		l.solveNormalEquation();
-		System.out.println(l.calculateOverallCost());
-		l.printOutput();
+		l.printOutput(Classifier.TRAINING);
+		l.getError(Classifier.TRAINING);
+		l.printOutput(Classifier.VALIDATION);
+		l.getError(Classifier.VALIDATION);
+		l.printOutput(Classifier.TESTING);
+		l.getError(Classifier.TESTING);
 		l.printWeights();
-		//		l.printEquation();
-		//		double[] d = { 1.0, 2.0, 10 };
-		//		System.out.println(l.predict(d));
+		l.printEquation();
+
+		//				double[] d = { 1.0, 2.0, 10 };
+		//				System.out.println(l.predict(d));
 	}
 
-	public Linear(double[][] data, double[] labels) {
-		super.init(data, labels, false, false);
-	}
-
-	public Linear(double[][] data, double[] labels, boolean regularize) {
-		super.init(data, labels, false, regularize);
+	public Linear(double[][] training, double[][] validation, double[][] testing, double[] trainLabels,
+			double[] validateLabels, double[] testLabels, boolean ualr, boolean rw) {
+		super.init(training, validation, testing, trainLabels, validateLabels, testLabels, ualr, rw);
 	}
 
 	@Override
@@ -62,27 +72,17 @@ public class Linear extends Regression implements Serializable {
 			Matrix identity = Matrix.identity(weights.getRowDimension(), weights.getRowDimension());
 			identity.set(0, 0, 0.0);
 			identity.times(regularizationCoefficient);
-			m = ((data.transpose().times(data)).plus(identity)).inverse();
+			m = ((trainingData.transpose().times(trainingData)).plus(identity)).inverse();
 		} else {
-			m = (data.transpose().times(data)).inverse();
+			m = (trainingData.transpose().times(trainingData)).inverse();
 		}
 
-		Matrix m1 = data.transpose().times(labels);
+		Matrix m1 = trainingData.transpose().times(trainingLabels);
 		weights = m.times(m1);
 	}
 
 	@Override
-	protected double calculateCost(int row, Matrix predictions) {
-		double actual = labels.get(row, 0);
-		double predicted = predictions.get(row, 0);
-
-		System.out.println(actual + "," + predicted);
-
-		return Math.pow((actual - predicted), 2) / 2;
-	}
-
-	@Override
-	protected Matrix getPredictions() {
+	protected Matrix getPredictions(Matrix data) {
 		return data.times(weights);
 	}
 
@@ -94,5 +94,24 @@ public class Linear extends Regression implements Serializable {
 		}
 
 		return thetaX;
+	}
+
+	/**
+	 * Least squares cost function.
+	 * Average error = (1/m)*Summation((actual-predicted)^2/2)
+	 */
+	@Override
+	protected double getError(Matrix predictions, Matrix labels) {
+		Matrix diff = labels.minus(predictions);
+		diff = diff.arrayTimes(diff);
+		diff = diff.times(0.5);
+
+		Matrix ones = new Matrix(diff.getRowDimension(), 1, 1);
+		double error = diff.times(ones.transpose()).get(0, 0);
+
+		error /= diff.getRowDimension();
+		System.out.println("Error = " + error);
+
+		return error;
 	}
 }

@@ -2,7 +2,9 @@ package nayak.Regression;
 
 import java.io.Serializable;
 
-import nayak.Regression.Regression;
+import nayak.Abstract.Classifier;
+import nayak.Abstract.Regression;
+import nayak.Data.Crossvalidation;
 import Jama.Matrix;
 
 /**
@@ -30,62 +32,69 @@ public class Logistic extends Regression implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 2305691582525372686L;
-	
+
 	boolean debug = false;
 
 	public static void main(String[] args) {
-		double[][] data = { { 1.0, 0.0, 1.0 }, { 1.0, 0.0, 2.0 }, {1.0, 0.0, -1.0 }, { 1.0, 0.0, -2.0 } };
+		double[][] data = { { 1.0, 0.0, 1.0 }, { 1.0, 0.0, 2.0 }, { 1.0, 0.0, -1.0 }, { 1.0, 0.0, -2.0 } };
 		double[] labels = { 0, 0, 1, 1 };
-		Logistic l = new Logistic(data, labels, true);
+
+		Crossvalidation cv = new Crossvalidation(data, labels, 1123);
+		cv.generateRandomSet(0.5);
+		Logistic l = new Logistic(cv.getTrainingSet(), cv.getValidationSet(), cv.getTestingSet(),
+				cv.getTrainingLabels(), cv.getValidationLabels(), cv.getTestingLabels(), false, true);
 
 		l.train(100);
-		l.printOutput();
-		double[] d = { 1.0, 2.0, 10 };
-		System.out.println(l.predict(d));
-		l.printWeights();
+		l.printOutput(Classifier.TRAINING);
+		l.getError(Classifier.TRAINING);
+		l.printOutput(Classifier.VALIDATION);
+		l.getError(Classifier.VALIDATION);
+		l.printOutput(Classifier.TESTING);
+		l.getError(Classifier.TESTING);
+		//		l.printOutput();
+		//		double[] d = { 1.0, 2.0, 10 };
+		//		System.out.println(l.predict(d));
+		//		l.printWeights();
 	}
 
-	public Logistic(double[][] data, double[] labels, boolean regularize) {
-		super.init(data, labels, false, regularize);
-		learningRate = 1.0;
-	}
-
-	public Logistic(double[][] data, double[] labels, double lr) {
-		super.init(data, labels, false, false);
-		learningRate = lr;
-	}
-
-	public Logistic(double[][] data, double[] labels, double lr, double ar) {
-		super.init(data, labels, true, false);
-		learningRate = lr;
-		annealingRate = ar;
+	public Logistic(double[][] training, double[][] validation, double[][] testing, double[] trainLabels,
+			double[] validateLabels, double[] testLabels, boolean ualr, boolean rw) {
+		super.init(training, validation, testing, trainLabels, validateLabels, testLabels, ualr, rw);
 	}
 
 	/**
 	 * Cost(h(x), y) = -y*log(h(x)) - (1-y)*log(1-(h(x)) 
-	 * -easier way to write cost function
 	 */
-	protected double calculateCost(int row, Matrix output) {
-		double actual = labels.get(row, 0);
-		double predicted = output.get(row, 0);
+	@Override
+	protected double getError(Matrix predictions, Matrix labels) {
+		double error = 0.0;
 
-		if (predicted == 1.0)
-			predicted = 0.9999;
+		double replaceZeroWith = Double.MIN_VALUE;
+		double replaceOneWith = 1 - replaceZeroWith;
 
-		if (predicted == 0.0)
-			predicted = 0.0001;
+		for (int i = 0; i < predictions.getRowDimension(); i++) {
+			double actual = labels.get(i, 0);
+			double predicted = predictions.get(i, 0);
 
-		if (actual == 0.0) {
-			return (-1 * Math.log10(1 - predicted));
-		} else {
-			return (-1 * Math.log10(predicted));
+			if (predicted == 1.0)
+				predicted = replaceOneWith;
+			if (predicted == 0.0)
+				predicted = replaceZeroWith;
+
+			error += -1 * actual * Math.log(predicted) - (1 - actual) * Math.log(1 - predicted);
 		}
+
+		error /= predictions.getRowDimension();
+		System.out.println("Error = " + error);
+
+		return error;
 	}
 
 	/**
 	 * h(x) = p(y=1|x;theta) = 1/(1+e^-(theta*x))
 	 */
-	protected Matrix getPredictions() {
+	@Override
+	protected Matrix getPredictions(Matrix data) {
 		Matrix m = data.times(weights);
 		for (int i = 0; i < m.getRowDimension(); i++) {
 			double exp = 1 / (1 + Math.exp(-1 * m.get(i, 0)));
@@ -107,45 +116,22 @@ public class Logistic extends Regression implements Serializable {
 	/**
 	 * theta_new = theta_old - alpha*(Summation of (h(x)-y)*x)
 	 */
-	//	private void updateThetaOld() {
-	//		for (int i = 0; i < theta.length; i++) {
-	//			double gradient = calculateGradient(i);
-	//			if (debug)
-	//				System.out.println("Gradient for theta " + i + " = " + gradient);
-	//			if (useAdaptiveLearningRate)
-	//				learningRate = calculateLearningRate(learningRate);
-	//			theta[i] -= (learningRate * gradient);
-	//			if (debug)
-	//				System.out.println("Theta = " + theta[i]);
-	//		}
-	//	}
-
-	/**
-	 * Using Matrices
-	 */
+	@Override
 	protected void updateTheta() {
 		//				print(dataMatrix);
-		Matrix diffMatrix = getPredictions().minus(labels);
+		Matrix diffMatrix = getPredictions(trainingData).minus(trainingLabels);
 		//				print(diffMatrix);
-		double aOverM = learningRate/data.getRowDimension();
-		Matrix gradient = (data.transpose().times(diffMatrix)).times(aOverM);
-//						print(gradient);
+		double aOverM = learningRate / trainingData.getRowDimension();
+		Matrix gradient = (trainingData.transpose().times(diffMatrix)).times(aOverM);
+		//						print(gradient);
 		//				print(thetaMatrix);
-		if(regularizeWeights) {
+		if (regularizeWeights) {
 			double interceptWeight = weights.get(0, 0); // don't perform regularization on intercept weight
-			double multiplier = 1-learningRate*(regularizationCoefficient/data.getRowDimension());
+			double multiplier = 1 - learningRate * (regularizationCoefficient / trainingData.getRowDimension());
 			weights = weights.times(multiplier);
 			weights.set(0, 0, interceptWeight);
 		}
 		weights = weights.minus(gradient);
 		//				print(thetaMatrix);
 	}
-
-	//	private double calculateGradient(int col) {
-	//		double gradient = 0.0;
-	//		for (int i = 0; i < data.length; i++) {
-	//			gradient += ((getOutput(i) - labels[i]) * data[i][col]);
-	//		}
-	//		return gradient / data.length;
-	//	}
 }

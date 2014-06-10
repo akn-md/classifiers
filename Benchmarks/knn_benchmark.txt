@@ -1,4 +1,4 @@
-Version 1.0.0 - Simple Nearest Neighbor
+Version 1.0.0 - Simple Nearest Neighbor - 6/1/14
 Description:
 No dimensionality reduction, no k, no weighted features. Just finding the single nearest neighbor and assigning that class.
 Uses a 2d array of doubles to hold data and calculate euclidean distance.

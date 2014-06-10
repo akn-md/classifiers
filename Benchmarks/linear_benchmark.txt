@@ -1,0 +1,16 @@
+Version 1.0.0 - Simple Linear Regression - 6/8/14
+Description:
+Multivariate, matrix operations, squared error cost function, normal equation method, regularization
+
+Tested With:
+None
+
+############################################################################
+Version 1.0.1 - 6/10/14
+Added:
+-cross-validation
+-faster error calculation
+
+Tested With:
+
+Results:

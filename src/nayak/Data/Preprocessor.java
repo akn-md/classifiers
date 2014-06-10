@@ -1,4 +1,4 @@
-package nayak.Preprocessing;
+package nayak.Data;
 
 /**
  * Basic Data Preprocessing Class
@@ -31,8 +31,8 @@ public class Preprocessor {
 		for (int i = 0; i < data[0].length; i++) {
 			int count = 0;
 			double mean = 0.0;
-			double min = Double.MAX_VALUE;
-			double max = Double.MIN_VALUE;
+			double min = Integer.MAX_VALUE;
+			double max = Integer.MIN_VALUE;
 			for (int j = 0; j < data.length; j++) {
 				double d = data[j][i];
 				if (d != unknown) {
