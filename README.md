@@ -10,7 +10,7 @@ Features
 - Nearest Neighbor
 
 *Data Processing*
-- CVS file reading
+- CSV file reading
 - Feature Scaling
 - Handling of unknown values
 - Java Serialization and easy File I/O
