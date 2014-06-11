@@ -14,7 +14,6 @@ Features
 - Feature Scaling
 - Handling of unknown values
 - Java Serialization and easy File I/O
-- Cross-validation
 
 *Dimensionality Reduction*
 - PCA
@@ -22,6 +21,10 @@ Features
 *Statistics*
 - Correlation
 - Other basic descriptive measures
+
+*General*
+- Cross-validation
+- Learning Curves
 
 Coming Soon
 -
