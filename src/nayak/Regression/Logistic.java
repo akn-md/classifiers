@@ -39,34 +39,36 @@ public class Logistic extends Regression implements Serializable {
 		double[][] data = { { 1.0, 0.0, 1.0 }, { 1.0, 0.0, 2.0 }, { 1.0, 0.0, -1.0 }, { 1.0, 0.0, -2.0 } };
 		double[] labels = { 0, 0, 1, 1 };
 
-		Crossvalidation cv = new Crossvalidation(data, labels, 1123);
-		cv.generateRandomSets(0.5);
-		Logistic l = new Logistic(cv.getTrainingSet(), cv.getValidationSet(), cv.getTestingSet(),
-				cv.getTrainingLabels(), cv.getValidationLabels(), cv.getTestingLabels(), false, true);
+//		Crossvalidation cv = new Crossvalidation(data, labels, 1123);
+//		cv.generateRandomSets(0.5);
+//		Logistic l = new Logistic(cv.getTrainingSet(), cv.getTrainingLabels(), false, true);
+//		l.train(100);
+//		l.printOutput();
+//		System.out.println(l.getError(l.getPredictions(l.getData()), l.getLabels()));
+//		Matrix testing = new Matrix(cv.getTestingSet());
+//		Matrix testingL = new Matrix(cv.getTestingLabels(), cv.getTestingLabels().length);
+//		Matrix predictions = l.getPredictions(testing);
+//		l.print(predictions);
+//		System.out.println(l.getError(predictions, testingL));
 
-		l.train(100);
-		l.printOutput(Classifier.TRAINING);
-		l.getError(Classifier.TRAINING);
-		l.printOutput(Classifier.VALIDATION);
-		l.getError(Classifier.VALIDATION);
-		l.printOutput(Classifier.TESTING);
-		l.getError(Classifier.TESTING);
 		//		l.printOutput();
 		//		double[] d = { 1.0, 2.0, 10 };
 		//		System.out.println(l.predict(d));
 		//		l.printWeights();
 	}
 
-	public Logistic(double[][] training, double[][] validation, double[][] testing, double[] trainLabels,
-			double[] validateLabels, double[] testLabels, boolean ualr, boolean rw) {
-		super.init(training, validation, testing, trainLabels, validateLabels, testLabels, ualr, rw);
+	public Logistic(boolean ualr, boolean rw) {
+		useAdaptiveLearningRate = ualr;
+		regularizeWeights = rw;
 	}
-
+	
 	/**
 	 * Cost(h(x), y) = -y*log(h(x)) - (1-y)*log(1-(h(x)) 
 	 */
 	@Override
-	protected double getError(Matrix predictions, Matrix labels) {
+	public double getError(Matrix data, Matrix labels) {
+		Matrix predictions = getPredictions(data);
+		
 		double error = 0.0;
 
 		double replaceZeroWith = Double.MIN_VALUE;
@@ -118,15 +120,15 @@ public class Logistic extends Regression implements Serializable {
 	@Override
 	protected void updateTheta() {
 		//				print(dataMatrix);
-		Matrix diffMatrix = getPredictions(trainingData).minus(trainingLabels);
+		Matrix diffMatrix = getPredictions(data).minus(labels);
 		//				print(diffMatrix);
-		double aOverM = learningRate / trainingData.getRowDimension();
-		Matrix gradient = (trainingData.transpose().times(diffMatrix)).times(aOverM);
+		double aOverM = learningRate / data.getRowDimension();
+		Matrix gradient = (data.transpose().times(diffMatrix)).times(aOverM);
 		//						print(gradient);
 		//				print(thetaMatrix);
 		if (regularizeWeights) {
 			double interceptWeight = weights.get(0, 0); // don't perform regularization on intercept weight
-			double multiplier = 1 - learningRate * (regularizationCoefficient / trainingData.getRowDimension());
+			double multiplier = 1 - learningRate * (regularizationCoefficient / data.getRowDimension());
 			weights = weights.times(multiplier);
 			weights.set(0, 0, interceptWeight);
 		}

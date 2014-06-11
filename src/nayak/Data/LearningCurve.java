@@ -13,6 +13,8 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import Jama.Matrix;
+
 /**
  * Computes learning curves using the JFreeChart library.
  * @author Ashwin K Nayak
@@ -31,21 +33,21 @@ public class LearningCurve {
 	}
 
 	public void computeTrainingExampleLC() {
-		cv.generateRandomSets(0.5, 0.5, 0.0);
+		cv.generateRandomSets(0.49, 0.49, 0.02);
 		int numTrainingExamples = cv.getNumTrainingExamples();
 
 		final XYSeries series1 = new XYSeries("Training Error");
 		final XYSeries series2 = new XYSeries("Validation Error");
 
 		int count = 1;
-		while(count < 1000) {
+		while (count < 1000) {
 			System.out.println("Training with " + (count) + " example(s)");
-			double[][] data = cv.getTrainingSet(count);
-			double[] labels = cv.getTrainingLabels(count);
-			c.resetTraining(data, labels);
+			c.init(cv.getTrainingSet(), cv.getTrainingLabels());
 			c.train(trainingParams);
-			double trainError = c.getError(Classifier.TRAINING);
-			double validationError = c.getError(Classifier.VALIDATION);
+			double trainError = c.getError(c.getData(), c.getLabels());
+			Matrix validationSet = new Matrix(cv.getValidationSet());
+			Matrix validationLabels = new Matrix(cv.getValidationLabels(), cv.getValidationLabels().length);
+			double validationError = c.getError(validationSet, validationLabels);
 			series1.add(count, trainError);
 			series2.add(count, validationError);
 			count++;

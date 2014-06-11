@@ -34,27 +34,27 @@ public class Linear extends Regression implements Serializable {
 		double[][] data = { { 1, 2104, 5, 1, 45 }, { 1, 1416, 3, 2, 40 }, { 1, 1534, 3, 2, 30 }, { 1, 852, 2, 1, 36 } };
 		double[] labels = { 460, 232, 315, 178 };
 		
-		Crossvalidation cv = new Crossvalidation(data, labels, 1123);
-		cv.generateRandomSets(0.5);
-		Linear l = new Linear(cv.getTrainingSet(), cv.getValidationSet(), cv.getTestingSet(), cv.getTrainingLabels(),
-				cv.getValidationLabels(), cv.getTestingLabels(), false, true);
-		l.solveNormalEquation();
-		l.printOutput(Classifier.TRAINING);
-		l.getError(Classifier.TRAINING);
-		l.printOutput(Classifier.VALIDATION);
-		l.getError(Classifier.VALIDATION);
-		l.printOutput(Classifier.TESTING);
-		l.getError(Classifier.TESTING);
-		l.printWeights();
-		l.printEquation();
+//		Crossvalidation cv = new Crossvalidation(data, labels, 1123);
+//		cv.generateRandomSets(0.5);
+//		Linear l = new Linear(cv.getTrainingSet(), cv.getValidationSet(), cv.getTestingSet(), cv.getTrainingLabels(),
+//				cv.getValidationLabels(), cv.getTestingLabels(), false, true);
+//		l.solveNormalEquation();
+//		l.printOutput(Classifier.TRAINING);
+//		l.getError(Classifier.TRAINING);
+//		l.printOutput(Classifier.VALIDATION);
+//		l.getError(Classifier.VALIDATION);
+//		l.printOutput(Classifier.TESTING);
+//		l.getError(Classifier.TESTING);
+//		l.printWeights();
+//		l.printEquation();
 
 		//				double[] d = { 1.0, 2.0, 10 };
 		//				System.out.println(l.predict(d));
 	}
 
-	public Linear(double[][] training, double[][] validation, double[][] testing, double[] trainLabels,
-			double[] validateLabels, double[] testLabels, boolean ualr, boolean rw) {
-		super.init(training, validation, testing, trainLabels, validateLabels, testLabels, ualr, rw);
+	public Linear(boolean ualr, boolean rw) {
+		useAdaptiveLearningRate = ualr;
+		regularizeWeights = rw;
 	}
 
 	@Override
@@ -72,12 +72,12 @@ public class Linear extends Regression implements Serializable {
 			Matrix identity = Matrix.identity(weights.getRowDimension(), weights.getRowDimension());
 			identity.set(0, 0, 0.0);
 			identity.times(regularizationCoefficient);
-			m = ((trainingData.transpose().times(trainingData)).plus(identity)).inverse();
+			m = ((data.transpose().times(data)).plus(identity)).inverse();
 		} else {
-			m = (trainingData.transpose().times(trainingData)).inverse();
+			m = (data.transpose().times(data)).inverse();
 		}
 
-		Matrix m1 = trainingData.transpose().times(trainingLabels);
+		Matrix m1 = data.transpose().times(data);
 		weights = m.times(m1);
 	}
 
@@ -101,7 +101,9 @@ public class Linear extends Regression implements Serializable {
 	 * Average error = (1/m)*Summation((actual-predicted)^2/2)
 	 */
 	@Override
-	protected double getError(Matrix predictions, Matrix labels) {
+	public double getError(Matrix data, Matrix labels) {
+		Matrix predictions = getPredictions(data);
+		
 		Matrix diff = labels.minus(predictions);
 		diff = diff.arrayTimes(diff);
 		diff = diff.times(0.5);
