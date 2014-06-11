@@ -1,13 +1,14 @@
 package nayak.Data;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.Random;
 
 /**
  * Generates training, validation, and testing data sets.
  * Using the same random seed will create the same sets.
  * 
- * @author Ashwin
+ * @author Ashwin K Nayak
  *
  */
 public class Crossvalidation implements Serializable {
@@ -21,7 +22,7 @@ public class Crossvalidation implements Serializable {
 		double[][] data = { { 1.0, 0.0, 1.0 }, { 1.0, 0.0, 2.0 }, { 1.0, 0.0, -1.0 }, { 1.0, 0.0, -2.0 } };
 		double[] labels = { 0, 0, 1, 1 };
 		Crossvalidation cv = new Crossvalidation(data, labels, 1);
-		cv.generateRandomSet(0.6);
+		cv.generateRandomSets(0.5, 0.5, 0.0);
 	}
 
 	double[][] data;
@@ -37,10 +38,21 @@ public class Crossvalidation implements Serializable {
 		random = new Random(seed);
 	}
 
-	public void generateRandomSet(double percentage) {
-		int numTrainingExamples = (int) (data.length * percentage);
-		int numValidationExamples = (int) ((data.length - numTrainingExamples) / 2.0);
-		int numTestingExamples = data.length - numTrainingExamples - numValidationExamples;
+	public void generateRandomSets(double training) {
+		double validation = (1-training)/2.0;
+		double testing = 1- training - validation;
+		generateRandomSets(training, validation, testing);
+	}
+
+	public void generateRandomSets(double trainingPercentage, double validationPercentage, double testingPercentage) {
+		int numTrainingExamples = (int) (data.length * trainingPercentage);
+		int numValidationExamples = (int) (data.length * validationPercentage);
+		
+		int remaining = data.length - numTrainingExamples - numValidationExamples;
+		int numTestingExamples = (int) (data.length * validationPercentage);
+		if(numTestingExamples > remaining)
+			numTestingExamples = remaining;
+		
 		System.out.println("numTrainingExamples = " + numTrainingExamples);
 		System.out.println("numValidationExamples = " + numValidationExamples);
 		System.out.println("numTestingExamples = " + numTestingExamples);
@@ -83,18 +95,45 @@ public class Crossvalidation implements Serializable {
 //			System.out.println(validation[i][0] + "," + validation[i][1] + "," + validation[i][2]);
 //		}
 		
-		int count = 0;
-		for(int i = 0; i < used.length; i++) {
-			if(used[i] == false) {
-				test[count] = data[i];
-				testLabels[count] = labels[i];
-				count++;
-			}
+		for (int i = 0; i < numTestingExamples; i++) {
+			do {
+				trainingExampleIndex = (int) (random.nextDouble() * data.length);
+			} while (used[trainingExampleIndex] == true);
+//			System.out.println(trainingExampleIndex);
+			used[trainingExampleIndex] = true;
+			test[i] = data[trainingExampleIndex];
+			testLabels[i] = labels[trainingExampleIndex];
 		}
 		
 //		for (int i = 0; i < test.length; i++) {
 //			System.out.println(test[i][0] + "," + test[i][1] + "," + test[i][2]);
 //		}
+	}
+		
+	/////////////////////////
+	//////// Helpers ////////
+	/////////////////////////
+	
+	// returns the first k rows of the training set
+	public double[][] getTrainingSet(int k) {
+		double[][] d = new double[k][train[0].length];
+		for(int i = 0; i < k; i++) {
+			d[i] = train[i]; // not modifying d so this is ok
+		}
+		
+		return d;
+	}
+
+	public double[] getTrainingLabels(int k) {
+		double[] d = new double[k];
+		for(int i = 0; i < k; i++) {
+			d[i] = trainLabels[i];
+		}
+		
+		return d;
+	}
+	public int getNumTrainingExamples() {
+		return train.length;
 	}
 	
 	public double[][] getTrainingSet() {

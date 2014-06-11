@@ -9,7 +9,7 @@ package nayak.IO;
  * -read column-specific (continuous) rows
  * -read rows and columns
  * 
- * @author Ashwin
+ * @author Ashwin K Nayak
  *
  */
 public class ReadCSV {

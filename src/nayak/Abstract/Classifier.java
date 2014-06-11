@@ -12,7 +12,7 @@ import Jama.Matrix;
  * -validation data
  * -testing data
  * 
- * @author Ashwin
+ * @author Ashwin K Nayak
  *
  */
 public abstract class Classifier implements Serializable {
@@ -29,8 +29,10 @@ public abstract class Classifier implements Serializable {
 	protected Matrix trainingData, validationData, testingData;
 	protected Matrix trainingLabels, validationLabels, testingLabels;
 
+	abstract public void train(double[] params);
 	abstract public double getError(int type);
 	abstract protected Matrix getPredictions(Matrix data);
+	abstract public void resetTraining(double[][] data, double[] labels);
 	
 	protected Matrix getPredictions(int type) {
 		switch (type) {

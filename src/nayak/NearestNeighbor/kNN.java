@@ -9,7 +9,7 @@ package nayak.NearestNeighbor;
  * -the k part
  * -Feature Weighting
  * 
- * @author Ashwin
+ * @author Ashwin K Nayak
  *
  */
 public class kNN {

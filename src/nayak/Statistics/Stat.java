@@ -4,6 +4,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+/**
+ * Basic descriptive stat measures
+ * 
+ * @author Ashwin K Nayak
+ *
+ */
 public class Stat {
 
 	public static double mean(double[] data) {

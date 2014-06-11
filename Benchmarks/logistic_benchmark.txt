@@ -32,6 +32,7 @@ Added:
 Tested With:
 Higgs Project
 
+Results:
 ----Train Alg---- ~250Kx30 data matrix, learning rate = 10.0
 10 iterations - 3.479s - Overall cost = 0.270
 100 iterations - 32.165s - Overall cost = 0.239
@@ -60,4 +61,13 @@ Version 1.0.3 - 6/10/14
 Added:
 -regularization
 -cross-validation
+
+Tested With:
+Higgs Project
+
+Results:
+----Train Alg---- ~150Kx14 data matrix, learning rate = 1.0
+10 iterations - 1.035s - TE = 0.618, VE = 0.617, GE = 0.618
+100 iterations - 9.737s - TE = 0.584, VE = 0.583, GE = 0.584
+1000 iterations - 99.96s - TE = 0.550, VE = 0.550, GE = 0.550
 

@@ -1,4 +1,16 @@
 package nayak.Statistics;
+
+/**
+ * Correlation class
+ * 
+ * Features:
+ * -multiple implementations of Pearson Correlation
+ * -covariance
+ * -coeff of determination
+ * 
+ * @author Ashwin K Nayak
+ *
+ */
 public class Corr {
 
 	public static double covariance(double[] x, double[] y) {

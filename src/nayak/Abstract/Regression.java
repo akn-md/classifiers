@@ -1,6 +1,5 @@
 package nayak.Abstract;
 
-import java.beans.FeatureDescriptor;
 import java.io.Serializable;
 
 import Jama.Matrix;
@@ -18,7 +17,7 @@ import Jama.Matrix;
  * -support for nonlinear boundaries
  * -locally weighted predictions
  * 
- * @author Ashwin
+ * @author Ashwin K Nayak
  *
  */
 public abstract class Regression extends Classifier implements Serializable {
@@ -73,6 +72,12 @@ public abstract class Regression extends Classifier implements Serializable {
 		}
 	}
 
+	@Override
+	public void resetTraining(double[][] data, double[] labels) {
+		trainingData = new Matrix(data);
+		trainingLabels = new Matrix(labels, labels.length);
+	}
+	
 	/**
 	 * Trains regression algorithm for specified number of iterations.
 	 * @param numIterations
@@ -88,6 +93,11 @@ public abstract class Regression extends Classifier implements Serializable {
 
 	}
 
+	@Override
+	public void train(double[] params) {
+		train((int) params[0]);
+	}
+	
 	public double getError(int type) {
 		Matrix m = getPredictions(type);
 		Matrix l = getLabels(type);

@@ -20,7 +20,7 @@ import Jama.Matrix;
  * -batch gradient descent
  * -regularization for gradient descent (theta = theta_old - alpha*(1/m)*Summation(predicted-actual)*value + (lambda/m)*theta_old) 
  * 
- * @author Ashwin
+ * @author Ashwin K Nayak
  *
  */
 public class Linear extends Regression implements Serializable {
@@ -35,7 +35,7 @@ public class Linear extends Regression implements Serializable {
 		double[] labels = { 460, 232, 315, 178 };
 		
 		Crossvalidation cv = new Crossvalidation(data, labels, 1123);
-		cv.generateRandomSet(0.5);
+		cv.generateRandomSets(0.5);
 		Linear l = new Linear(cv.getTrainingSet(), cv.getValidationSet(), cv.getTestingSet(), cv.getTrainingLabels(),
 				cv.getValidationLabels(), cv.getTestingLabels(), false, true);
 		l.solveNormalEquation();

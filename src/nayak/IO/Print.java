@@ -2,6 +2,11 @@ package nayak.IO;
 
 import java.util.Arrays;
 
+/**
+ * 
+ * @author Ashwin K Nayak
+ *
+ */
 public class Print {
 
 	public static void print(double[] d) {

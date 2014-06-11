@@ -17,7 +17,7 @@ import Jama.Matrix;
  * 6) Transpose feature vector and mean-adjusted data
  * 7) Multiply transposed matrices to transpose results to obtain final data
  * 
- * @author Ashwin
+ * @author Ashwin K Nayak
  * 
  */
 public class PCA {

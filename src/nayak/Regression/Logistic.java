@@ -23,7 +23,7 @@ import Jama.Matrix;
  * -different cost functions
  * -conjugate gradient, BFGS, L-BFGS
  * 
- * @author Ashwin
+ * @author Ashwin K Nayak
  *
  */
 public class Logistic extends Regression implements Serializable {
@@ -40,7 +40,7 @@ public class Logistic extends Regression implements Serializable {
 		double[] labels = { 0, 0, 1, 1 };
 
 		Crossvalidation cv = new Crossvalidation(data, labels, 1123);
-		cv.generateRandomSet(0.5);
+		cv.generateRandomSets(0.5);
 		Logistic l = new Logistic(cv.getTrainingSet(), cv.getValidationSet(), cv.getTestingSet(),
 				cv.getTrainingLabels(), cv.getValidationLabels(), cv.getTestingLabels(), false, true);
 
@@ -85,7 +85,6 @@ public class Logistic extends Regression implements Serializable {
 		}
 
 		error /= predictions.getRowDimension();
-		System.out.println("Error = " + error);
 
 		return error;
 	}

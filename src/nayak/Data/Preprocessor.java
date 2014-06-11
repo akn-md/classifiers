@@ -8,7 +8,7 @@ package nayak.Data;
  * -feature scaling (mean normalization)
  * -adding column of ones (for regression)
  * 
- * @author Ashwin
+ * @author Ashwin K Nayak
  *
  */
 public class Preprocessor {
