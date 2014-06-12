@@ -73,6 +73,7 @@ public abstract class Regression extends Classifier implements Serializable {
 		} else {
 			for (int i = 0; i < numIterations; i++) {
 				updateTheta();
+//				System.out.println(getError(data, labels));
 			}
 		}
 	}
@@ -80,6 +81,11 @@ public abstract class Regression extends Classifier implements Serializable {
 	@Override
 	public void train(double[] params) {
 		train((int) params[0]);
+	}
+	
+	@Override
+	public double getTrainingError() {
+		return getError(data, labels);
 	}
 
 	/**

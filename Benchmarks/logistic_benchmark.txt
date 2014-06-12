@@ -71,3 +71,18 @@ Results:
 100 iterations - 9.737s - TE = 0.584, VE = 0.583, GE = 0.584
 1000 iterations - 99.96s - TE = 0.550, VE = 0.550, GE = 0.550
 
+############################################################################
+Version 1.0.4 - 6/11/14
+Added:
+-major simplifications to class hierarchy
+-fixed bug in calculating ranges
+
+Tested With:
+Higgs Project
+
+Results
+----Train Alg---- ~250x30 data matrix, learning rate = 1.0, no regularization
+10 iterations - 3.465s - TE - 0.616
+100 iterations - 32.588s - TE = 0.584
+1000 iterations - 337.11s - TE = 0.550
+

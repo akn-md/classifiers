@@ -36,6 +36,8 @@ public abstract class Classifier implements Serializable {
 	
 	abstract public double getError(Matrix data, Matrix labels);
 	
+	abstract public double getTrainingError();
+	
 	public Matrix getData() {
 		return data;
 	}

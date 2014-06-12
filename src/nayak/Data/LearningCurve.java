@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import nayak.Abstract.Classifier;
+import nayak.IO.Print;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartFrame;
@@ -26,23 +27,27 @@ public class LearningCurve {
 	Crossvalidation cv;
 	double[] trainingParams;
 
-	public LearningCurve(Classifier c, Crossvalidation cv, double[] trainingParams) {
+	public int maxExamplesToUse = 1000;
+	public boolean displayCurve = false;
+	public boolean writeCurve = true;
+
+	public LearningCurve(Classifier c, double[] trainingParams) {
 		this.c = c;
-		this.cv = cv;
+		this.cv = new Crossvalidation(c.getData().getArray(), c.getLabels().getColumnPackedCopy(), 1123);
+		//		Print.print(cv.labels);
 		this.trainingParams = trainingParams;
 	}
 
 	public void computeTrainingExampleLC() {
 		cv.generateRandomSets(0.49, 0.49, 0.02);
-		int numTrainingExamples = cv.getNumTrainingExamples();
 
 		final XYSeries series1 = new XYSeries("Training Error");
 		final XYSeries series2 = new XYSeries("Validation Error");
 
 		int count = 1;
-		while (count < 1000) {
+		while (count < maxExamplesToUse) {
 			System.out.println("Training with " + (count) + " example(s)");
-			c.init(cv.getTrainingSet(), cv.getTrainingLabels());
+			c.init(cv.getTrainingSet(count), cv.getTrainingLabels(count));
 			c.train(trainingParams);
 			double trainError = c.getError(c.getData(), c.getLabels());
 			Matrix validationSet = new Matrix(cv.getValidationSet());
@@ -66,17 +71,20 @@ public class LearningCurve {
 				false // urls
 				);
 
-		File file = new File("learningCurve.jpg");
-		try {
-			ChartUtilities.saveChartAsJPEG(file, chart, 1000, 500);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (writeCurve) {
+			File file = new File("learningCurve_top2features.jpg");
+			try {
+				ChartUtilities.saveChartAsJPEG(file, chart, 1000, 500);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
-		ChartFrame frame = new ChartFrame("First", chart);
-		frame.pack();
-		frame.setVisible(true);
-
+		if (displayCurve) {
+			ChartFrame frame = new ChartFrame("First", chart);
+			frame.pack();
+			frame.setVisible(true);
+		}
 	}
 }

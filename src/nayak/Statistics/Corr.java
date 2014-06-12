@@ -8,6 +8,9 @@ package nayak.Statistics;
  * -covariance
  * -coeff of determination
  * 
+ * To Add:
+ * -optimized methods
+ * 
  * @author Ashwin K Nayak
  *
  */

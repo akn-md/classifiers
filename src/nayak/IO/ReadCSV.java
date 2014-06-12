@@ -1,6 +1,5 @@
 package nayak.IO;
 
-
 /**
  * Read CSV files
  * 
@@ -59,10 +58,10 @@ public class ReadCSV {
 
 		int count = 0, dataCount = 0;
 		while (!TextIO.eof()) {
-			
-			if(count < startRow) {
+
+			if (count < startRow) {
 				TextIO.getln();
-			} else if(count >= startRow && count <= endRow) {
+			} else if (count >= startRow && count <= endRow) {
 				String s = TextIO.getln();
 				String[] row = s.split(",");
 				data[dataCount] = row[col];
@@ -70,23 +69,23 @@ public class ReadCSV {
 			} else if (count > endRow) {
 				TextIO.getln();
 			}
-			
+
 			count++;
 		}
 
 		return data;
 	}
-	
+
 	public static double[] readRow(String filepath, int row, int startCol, int endCol) {
 		double[] data = new double[endCol - startCol + 1];
-		
+
 		TextIO.readFile(filepath);
-		
+
 		int count = 0;
-		while(!TextIO.eof()) {
-			if(count == row) {
+		while (!TextIO.eof()) {
+			if (count == row) {
 				String[] s = TextIO.getln().split(",");
-				for(int i = 0; i < data.length; i++) {
+				for (int i = 0; i < data.length; i++) {
 					data[i] = Double.parseDouble(s[i + startCol]);
 				}
 				count++;
@@ -95,9 +94,10 @@ public class ReadCSV {
 				count++;
 			}
 		}
-		
+
 		return data;
 	}
+
 	/**
 	 * Reads specified rows and columns (all inclusive) to 2D double array. 
 	 * @param startCol (first column is 0)
@@ -112,7 +112,7 @@ public class ReadCSV {
 		double[][] data = new double[numRows][numCols];
 
 		TextIO.readFile(filepath);
-		
+
 		int count = 0, dataCount = 0;
 		while (!TextIO.eof()) {
 
@@ -131,7 +131,51 @@ public class ReadCSV {
 				break;
 			}
 			count++;
-			
+
+		}
+
+		return data;
+	}
+
+	/**
+	 * Reads specified rows and columns. columns[] must contain column indices in order.
+	 * @param columns
+	 * @param startRow
+	 * @param endRow
+	 * @param filepath
+	 * @return
+	 */
+	public static double[][] readData(int[] columns, int startRow, int endRow, String filepath) {
+		int numCols = columns.length;
+		int numRows = endRow - startRow + 1;
+		double[][] data = new double[numRows][numCols];
+
+		TextIO.readFile(filepath);
+
+		int count = 0, dataCount = 0;
+		
+		while (!TextIO.eof()) {
+			if (count < startRow) {
+				TextIO.getln();
+			} else if (count >= startRow && count <= endRow) {
+				String s = TextIO.getln();
+				String[] row = s.split(",");
+				int colCount = 0;
+
+				for (int i = 0; i < row.length; i++) {
+					if (colCount < columns.length) {
+						if (i == columns[colCount]) {
+							data[dataCount][colCount] = Double.parseDouble(row[i]);
+							colCount++;
+						}
+					}
+				}
+				dataCount++;
+
+			} else if (count > endRow) {
+				break;
+			}
+			count++;
 		}
 
 		return data;

@@ -146,4 +146,15 @@ public class Preprocessor {
 			System.arraycopy(d[i], 0, data[i], 0, data[i].length);
 		}
 	}
+	
+	public static double[] getCol(double[][] data, int col) {
+		double[] d = new double[data.length];
+		
+		for(int i = 0; i < d.length; i++) {
+			double dd = data[i][col];
+			d[i] = dd;
+		}
+		
+		return d;
+	}
 }

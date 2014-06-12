@@ -39,6 +39,9 @@ public class Logistic extends Regression implements Serializable {
 		double[][] data = { { 1.0, 0.0, 1.0 }, { 1.0, 0.0, 2.0 }, { 1.0, 0.0, -1.0 }, { 1.0, 0.0, -2.0 } };
 		double[] labels = { 0, 0, 1, 1 };
 
+		Logistic l = new Logistic(false, false);
+		l.init(data, labels);
+		l.train(100);
 //		Crossvalidation cv = new Crossvalidation(data, labels, 1123);
 //		cv.generateRandomSets(0.5);
 //		Logistic l = new Logistic(cv.getTrainingSet(), cv.getTrainingLabels(), false, true);
@@ -73,7 +76,9 @@ public class Logistic extends Regression implements Serializable {
 
 		double replaceZeroWith = Double.MIN_VALUE;
 		double replaceOneWith = 1 - replaceZeroWith;
-
+//		double replaceZeroWith = 0.0001;
+//		double replaceOneWith = 0.999;
+		
 		for (int i = 0; i < predictions.getRowDimension(); i++) {
 			double actual = labels.get(i, 0);
 			double predicted = predictions.get(i, 0);
