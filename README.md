@@ -12,23 +12,25 @@ Features
 *Data Processing*
 - CSV file reading
 - Feature Scaling
-- Handling of unknown values
 - Java Serialization and easy File I/O
 
 *Dimensionality Reduction*
 - PCA
 
+*Optimization*
+- Cross-validation
+- Feature Selection
+
 *Statistics*
 - Correlation
 - Other basic descriptive measures
 
-*General*
-- Cross-validation
+*Visualization*
 - Learning Curves
+- Scatter plot
 
 Coming Soon
 -
-- Model selection (to select appropriate amount of features)
 - ANN
 - SVM
 
