@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.Random;
 
 import nayak.Abstract.Classifier;
-import nayak.Data.Crossvalidation;
 import nayak.Data.Preprocessor;
+import Jama.Matrix;
 
 /**
  * Selects the best features.
@@ -26,15 +26,19 @@ public class FeatureSelector {
 	Classifier c;
 	Crossvalidation cv;
 
-	double[][] allData;
-	double[] allLabels;
+	Matrix allData;
+	Matrix allLabels;
 	double[] trainingParams;
+	
+	int numFeatures, numExamples;
 
 	public FeatureSelector(Classifier c, double[] params) {
 		this.c = c;
-		this.allData = c.getData().getArray();
-		this.allLabels = c.getLabels().getColumnPackedCopy();
-		cv = new Crossvalidation(allData, allLabels, 1123);
+		this.allData = c.getData();
+		this.allLabels = c.getLabels();
+		numFeatures = allData.getColumnDimension();
+		numExamples = allData.getRowDimension();
+//		cv = new Crossvalidation(this.allData, this.allLabels, 1123);
 		trainingParams = params;
 	}
 
@@ -43,11 +47,11 @@ public class FeatureSelector {
 		int minFeature = -1;
 
 		int[] cols = new int[1];
-		for (int i = 0; i < allData[0].length; i++) {
+		for (int i = 0; i < numFeatures; i++) {
 			cols[0] = i;
 			double[][] data = getSubset(cols);
 			Preprocessor.addOnes(data);
-			c.init(data, allLabels);
+			c.init(new Matrix(data), allLabels);
 			c.train(trainingParams);
 			double error = c.getTrainingError();
 			System.out.println("Feature " + i + ", error = " + error);
@@ -70,16 +74,16 @@ public class FeatureSelector {
 		while (count < numIterations) {
 			System.out.println("-----------------------");
 			// how many features?
-			int numFeatures = (int) (random.nextDouble() * allData[0].length) + 1;
-			System.out.println("Trying " + numFeatures + " features");
+			int num = (int) (random.nextDouble() * numFeatures) + 1;
+			System.out.println("Trying " + num + " features");
 			System.out.print("Using indices ");
 
-			int[] features = new int[numFeatures];
-			boolean[] taken = new boolean[allData[0].length];
+			int[] features = new int[num];
+			boolean[] taken = new boolean[num];
 			int featureIndex = -1;
 			for (int i = 0; i < features.length; i++) {
 				do {
-					featureIndex = (int) (random.nextDouble() * allData[0].length);
+					featureIndex = (int) (random.nextDouble() * num);
 				} while(taken[featureIndex] == true);
 				taken[featureIndex] = true;
 				features[i] = featureIndex;
@@ -89,7 +93,7 @@ public class FeatureSelector {
 			
 			double[][] data = getSubset(features);
 			Preprocessor.addOnes(data);
-			c.init(data, allLabels);
+			c.init(new Matrix(data), allLabels);
 			c.train(trainingParams);
 			double error = c.getTrainingError();
 			System.out.println("Error = " + error);
@@ -150,7 +154,7 @@ public class FeatureSelector {
 			}
 			System.out.println("Terms = " + s);
 			Preprocessor.addOnes(adjustedData);
-			c.init(adjustedData, allLabels);
+			c.init(new Matrix(adjustedData), allLabels);
 			c.train(trainingParams);
 			double error = c.getTrainingError();
 			System.out.println("Error = " + error);
@@ -177,11 +181,11 @@ public class FeatureSelector {
 		return adjustedData;
 	}
 	private double[][] getSubset(int[] cols) {
-		double[][] d = new double[allData.length][cols.length];
+		double[][] d = new double[numExamples][cols.length];
 
 		for (int i = 0; i < d.length; i++) {
 			for (int j = 0; j < d[0].length; j++) {
-				d[i][j] = allData[i][cols[j]];
+				d[i][j] = allData.get(i, cols[j]);
 			}
 		}
 

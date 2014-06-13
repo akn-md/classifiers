@@ -88,7 +88,7 @@ public class Preprocessor {
 	 * @param num
 	 * @param degree
 	 */
-	public double[][] addPolynomialFeatures(int num, int degree, long seed) {
+	public static double[][] addPolynomialFeatures(double[][] data, int num, int degree, long seed) {
 		int numFeatures = data[0].length;
 		int[] features = null;
 
@@ -122,11 +122,9 @@ public class Preprocessor {
 						index = features[index];
 
 					double d = data[i][index];
+					double val = Math.pow(d, degree);
 
-					for (int count = 1; count < degree; count++) {
-						d *= d;
-					}
-					adjustedData[i][j] = d;
+					adjustedData[i][j] = val;
 				}
 			}
 		}

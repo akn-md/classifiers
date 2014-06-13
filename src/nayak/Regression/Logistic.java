@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import nayak.Abstract.Classifier;
 import nayak.Abstract.Regression;
-import nayak.Data.Crossvalidation;
+import nayak.Optimization.Crossvalidation;
 import Jama.Matrix;
 
 /**
@@ -20,6 +20,7 @@ import Jama.Matrix;
  * -regularization for batch gradient descent
  * 
  * To Add:
+ * -calculate cost differently if using regularization (add regularization term)
  * -different cost functions
  * -conjugate gradient, BFGS, L-BFGS
  * 
@@ -36,12 +37,13 @@ public class Logistic extends Regression implements Serializable {
 	boolean debug = false;
 
 	public static void main(String[] args) {
-		double[][] data = { { 1.0, 0.0, 1.0 }, { 1.0, 0.0, 2.0 }, { 1.0, 0.0, -1.0 }, { 1.0, 0.0, -2.0 } };
-		double[] labels = { 0, 0, 1, 1 };
+		double[][] data = { { 1.0, -3.0, 9.0 }, { 1.0, -1.0, 1.0 }, { 1.0, 1.0, 1.0 }, { 1.0, 3.0, 9.0} };
+		double[] labels = { 1, 0, 0, 1 };
 
 		Logistic l = new Logistic(false, false);
-		l.init(data, labels);
-		l.train(100);
+//		l.init(data, labels);
+//		l.train(100);
+//		l.printEquation();	
 //		Crossvalidation cv = new Crossvalidation(data, labels, 1123);
 //		cv.generateRandomSets(0.5);
 //		Logistic l = new Logistic(cv.getTrainingSet(), cv.getTrainingLabels(), false, true);

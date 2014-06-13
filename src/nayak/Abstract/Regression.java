@@ -45,10 +45,10 @@ public abstract class Regression extends Classifier implements Serializable {
 	 * @param data
 	 */
 	@Override
-	public void init(double[][] data, double[] labels) {
+	public void init(Matrix data, Matrix labels) {
 
-		this.data = new Matrix(data);
-		this.labels = new Matrix(labels, labels.length);
+		this.data = data;
+		this.labels = labels;
 
 		// initialize weights to matrix of zeros
 		weights = new Matrix(this.data.getColumnDimension(), 1);
@@ -73,7 +73,7 @@ public abstract class Regression extends Classifier implements Serializable {
 		} else {
 			for (int i = 0; i < numIterations; i++) {
 				updateTheta();
-//				System.out.println(getError(data, labels));
+				System.out.println(getError(data, labels));
 			}
 		}
 	}
@@ -81,11 +81,6 @@ public abstract class Regression extends Classifier implements Serializable {
 	@Override
 	public void train(double[] params) {
 		train((int) params[0]);
-	}
-	
-	@Override
-	public double getTrainingError() {
-		return getError(data, labels);
 	}
 
 	/**
@@ -118,15 +113,5 @@ public abstract class Regression extends Classifier implements Serializable {
 			System.out.print(" + " + weights.get(i, 0) + "*X" + i);
 		}
 		System.out.println();
-	}
-
-	protected void print(Matrix m) {
-		for (int i = 0; i < m.getRowDimension(); i++) {
-			System.out.print("Row " + i + "\t");
-			for (int j = 0; j < m.getColumnDimension(); j++) {
-				System.out.print(m.get(i, j) + "\t");
-			}
-			System.out.println();
-		}
 	}
 }

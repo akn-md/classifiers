@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import nayak.Abstract.Classifier;
 import nayak.Abstract.Regression;
-import nayak.Data.Crossvalidation;
+import nayak.Optimization.Crossvalidation;
 import Jama.Matrix;
 
 /**

@@ -1,4 +1,4 @@
-package nayak.Data;
+package nayak.Optimization;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;

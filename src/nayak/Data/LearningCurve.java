@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import nayak.Abstract.Classifier;
 import nayak.IO.Print;
+import nayak.Optimization.Crossvalidation;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartFrame;
@@ -47,7 +48,7 @@ public class LearningCurve {
 		int count = 1;
 		while (count < maxExamplesToUse) {
 			System.out.println("Training with " + (count) + " example(s)");
-			c.init(cv.getTrainingSet(count), cv.getTrainingLabels(count));
+			c.init(new Matrix(cv.getTrainingSet(count)), new Matrix(cv.getTrainingLabels(count), cv.getTrainingLabels(count).length));
 			c.train(trainingParams);
 			double trainError = c.getError(c.getData(), c.getLabels());
 			Matrix validationSet = new Matrix(cv.getValidationSet());

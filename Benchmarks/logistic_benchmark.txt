@@ -82,7 +82,33 @@ Higgs Project
 
 Results
 ----Train Alg---- ~250x30 data matrix, learning rate = 1.0, no regularization
-10 iterations - 3.465s - TE - 0.616
+10 iterations - 3.465s - TE = 0.616
 100 iterations - 32.588s - TE = 0.584
 1000 iterations - 337.11s - TE = 0.550
+
+############################################################################
+Version 1.0.5 - 6/11/14
+Added:
+-all squared and cubic terms for all 30 features
+
+Tested With:
+Higgs Project
+
+Learning rate = 1.0
+2 features, degree 2, 100 iterations - 0.6047
+2 features, degree 3, 100 iterations - 0.6048
+2 features, degree 4, 100 iterations - 0.6048
+2 features, degree 9, 100 iterations - 0.6048
+7 features, degree 2, 100 iterations - 0.6002
+7 features, degree 3, 100 iterations - 0.5999
+7 features, degree 4, 100 iterations - 0.5996
+7 features, degree 9, 100 iterations - 0.5994
+14 features, degree 2, 100 iterations - 0.5824
+14 features, degree 3, 100 iterations - 0.5824
+14 features, degree 4, 100 iterations - 0.5824
+30 features, degree 2, 100 iterations - 0.5788
+30 features, degree 3, 100 iterations - 0.5786
+30 features, degree 4, 100 iterations - 0.5783
+
+
 
