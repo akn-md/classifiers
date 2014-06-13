@@ -4,11 +4,6 @@ This repo is a collection of ML tools I have developed for various projects. Eve
 
 Features
 -
-*Classifiers*
-- Linear Regression
-- Logistic Regression
-- Nearest Neighbor
-- Neural Network
 
 *Data Processing*
 - CSV file reading
@@ -17,6 +12,12 @@ Features
 
 *Dimensionality Reduction*
 - PCA
+
+*Learning Algorithms*
+- Linear Regression
+- Logistic Regression
+- Nearest Neighbor
+- Neural Network
 
 *Optimization*
 - Cross-validation
