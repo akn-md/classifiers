@@ -8,6 +8,7 @@ Features
 - Linear Regression
 - Logistic Regression
 - Nearest Neighbor
+- Neural Network
 
 *Data Processing*
 - CSV file reading
@@ -31,7 +32,6 @@ Features
 
 Coming Soon
 -
-- ANN
 - SVM
 
 
