@@ -16,6 +16,9 @@ import Jama.Matrix;
  * To add:
  * -gradient checking
  * -momentum
+ * -weight decay
+ * -weight sharing
+ * -model averaging
  * 
  * Training Steps:
  * 1) Randomly initialize weights - TESTED
@@ -117,9 +120,34 @@ public class NeuralNetwork extends Classifier {
 
 	/**
 	 * Backpropagation (for online learning)
+	 * 
+	 * Weights_new = weights_old - learningRate*(dE/dW)
 	 * @param i
 	 */
 	public void update(int i) {
+		// Overall calculation 
+		// Weights_AB_new = weights_AB_old - learningRate*(dE/dW)
+		// dE/dWab = deriv of Error w.r.t weights from a to b
+		// dE/dWab = (dE/dIb)*(dIb/dWab) - via chain rule ---- dIb/dWab = Oa = output of neuron a
+		// so dE/dWab = (dE/dIb)*Oa meaning the weight change of Wab depends 
+		// on the sensitivity of the error to the input of neuron B and on the input signal Oa
+		// Weights_AB_new = weights_AB_old - learningRate*(dE/dIb)*Oa
+		// 2 cases for B:
+		/// 1. B is an output neuron
+		/// dE/dIb = 2E*f'(Ib)
+		//// For sigmoid/logistic activation: f'(x) = f(x)*(1-f(x))
+		//// For tanh activation: f'(x) = (1-f(x)^2)
+		//// For linear function: f'(x) = 1
+		/// Overall update for case 1 = weights_AB_old - learningRate*Oa*2E*f'(Ib)
+		/// 2. B is a hidden neuron
+		/// dE/dIb = (dE/dI0)*(dI0/dOb)*(dOb/dIb), 0 = output neuron
+		//// dOb/dIb = f'(Ib)
+		//// dI0/d0b = Wb0
+		//// dE/dI0 = dE/dIb from previous layer
+		//// so dE/dIb = (dE/dI0)*Wb0*f'(Ib)
+		
+		Matrix[] updates = new Matrix[weights.length];
+		
 		Matrix[] deltas = new Matrix[totalLayers - 1];
 
 		// expected output
@@ -131,44 +159,44 @@ public class NeuralNetwork extends Classifier {
 
 		// delta for output layer
 		// delta = (expected - output)*output*(1 - output)
-		Matrix delta = label.minus(outputLayer);
+		Matrix delta = label.minus(outputLayer).times(2.0); // 2E
 		Matrix ones = new Matrix(label.getRowDimension(), 1, 1.0);
 		ones = ones.minus(outputLayer);
-		ones = ones.arrayTimes(outputLayer);
-		delta = delta.arrayTimes(ones);
+		ones = ones.arrayTimes(outputLayer); // f'(Ib)
+		delta = delta.arrayTimes(ones); // 2E*f'(Ib)
 
-		deltas[deltas.length - 1] = delta;
+		deltas[deltas.length - 1] = delta; // save delta for hidden layer
 		
 		// calculate weight change for output layer
 		// weight += learningRate*(delta x prev_output)
-		Matrix weightChange = delta.times(learningRate);
-		weightChange = weightChange.times(activations[activations.length - 2].transpose());
+		Matrix weightChange = delta.times(learningRate); // leraningRate*dE/dIb
+		weightChange = weightChange.times(activations[activations.length - 2].transpose()); // gradient
 		
-		// adjust weights
-		weights[weights.length - 1] = weights[weights.length - 1].plus(weightChange);
-
+		// save updates
+		updates[weights.length - 1] = weightChange;
+		
 		// compute delta terms for hidden layers
 		// delta = output*(1 - output)*(weights x prev_delta)
 		for (int j = activations.length - 2; j > 0; j--) {
 			// activations for current hidden layer
-			Matrix layer = activations[j];
+			Matrix layer = activations[j]; // Ib
 
 			// prev_delta
-			Matrix prevDelta = deltas[j];
+			Matrix prevDelta = deltas[j]; // dE/dI0
 
 			// output*(1 - output)
 			ones = new Matrix(layer.getRowDimension(), 1, 1.0);
 			ones = ones.minus(layer);
-			ones = ones.arrayTimes(layer);
+			ones = ones.arrayTimes(layer); // f'(Ib)
 			
-			// weights that were just updated
-			Matrix layerWeights = weights[j];
+			// weights 
+			Matrix layerWeights = weights[j]; // Wb0
 			
 			// weights x prev_delta
-			layerWeights = layerWeights.transpose().times(prevDelta);
+			layerWeights = layerWeights.transpose().times(prevDelta); // Wb0*(dE/dI0)
 			
 			// calculate delta
-			Matrix d = ones.arrayTimes(layerWeights);
+			Matrix d = ones.arrayTimes(layerWeights); // dE/dIb
 
 			
 			// remove bias unit error
@@ -176,10 +204,15 @@ public class NeuralNetwork extends Classifier {
 			deltas[j - 1] = d;
 
 			// calculate weight change
-			Matrix wc = d.times(learningRate).times(activations[j -1].transpose());
+			Matrix wc = d.times(learningRate).times(activations[j -1].transpose()); // learningRate*dE/dW
 			
-			// adjust weights
-			weights[j - 1] = weights[j - 1].plus(wc);
+			// save updates
+			updates[j - 1] = wc;
+		}
+		
+		// update weights
+		for(int w = 0; w < weights.length; w++) {
+			weights[w] = weights[w].plus(updates[w]);
 		}
 	}
 
