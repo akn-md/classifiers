@@ -166,15 +166,15 @@ public class NeuralNetwork extends Classifier {
 			
 			// weights x prev_delta
 			layerWeights = layerWeights.transpose().times(prevDelta);
-
+			
 			// calculate delta
 			Matrix d = ones.arrayTimes(layerWeights);
 
-			deltas[j - 1] = d;
 			
 			// remove bias unit error
 			d = d.getMatrix(1, d.getRowDimension() - 1, 0, d.getColumnDimension() - 1);
-			
+			deltas[j - 1] = d;
+
 			// calculate weight change
 			Matrix wc = d.times(learningRate).times(activations[j -1].transpose());
 			
@@ -290,6 +290,11 @@ public class NeuralNetwork extends Classifier {
 				double actual = labels.get(i, k);
 				double predicted = predictions.get(i, k);
 
+				if(predicted  == 1.0)
+					predicted = 0.999;
+				if(predicted == 0.0)
+					predicted = 0.0001;
+				
 				error += actual * Math.log(predicted) + (1 - actual) * Math.log(1 - predicted);
 
 			}

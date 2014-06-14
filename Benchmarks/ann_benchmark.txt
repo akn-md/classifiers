@@ -1,0 +1,23 @@
+Version 1.0.0 - Neural Network - 6/13/14
+Description:
+-back prop, learning rate
+
+Tested With:
+Higgs Project
+
+Results:
+----Train Alg---- ~250Kx30 data matrix
+Params: 30, 5, 1 - learning rate = 1.0
+1 iteration - 6.723s - Error = 0.47613624036892144, 0.5514348381736557, 0.5108305812772705
+10 iterations - 62.907s - Error = 0.451681617748607, 0.4855657096158198
+
+Params: 30, 10, 1 - learning rate = 0.2
+1 iteration - 8.935s - Error = 0.49790671056858343
+10 iterations - 86.183 - Error = 0.41019498018767225
+
+Params: 7, 10, 1 - learning rate = 0.2
+1 iteration - 6.061s - Error = 0.5651195443429662
+
+----Heaton----
+Params: 30, 10, 1 - learning rate = 0.2
+1 iteration - 28.235s - Error = 0.5853785100257781
