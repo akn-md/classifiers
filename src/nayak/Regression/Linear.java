@@ -19,6 +19,7 @@ import Jama.Matrix;
  * -calculate cost differently if using regularization (add regularization term)
  * -batch gradient descent
  * -regularization for gradient descent (theta = theta_old - alpha*(1/m)*Summation(predicted-actual)*value + (lambda/m)*theta_old) 
+ * -locally weighted linear regression
  * 
  * @author Ashwin K Nayak
  *

@@ -2,7 +2,7 @@ package nayak.Data;
 
 import java.util.Random;
 
-import nayak.IO.Print;
+import nayak.Utility.Print;
 
 /**
  * Basic Data Preprocessing Class

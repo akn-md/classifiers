@@ -1,6 +1,6 @@
 Version 1.0.0 - Neural Network - 6/13/14
 Description:
--back prop, learning rate
+-back prop, learning rate, online learning
 
 Tested With:
 Higgs Project
@@ -21,3 +21,13 @@ Params: 7, 10, 1 - learning rate = 0.2
 ----Heaton----
 Params: 30, 10, 1 - learning rate = 0.2
 1 iteration - 28.235s - Error = 0.5853785100257781
+
+###############################
+Version 1.0.1 - 6/14/14
+Added:
+-fixed weight update bug
+
+Results:
+----Train Alg----
+Params: 30, 5, 1 - learning rate = 0.2
+10 iterations - 85.234 - Error = 0.42342194629073815

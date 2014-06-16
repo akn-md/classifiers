@@ -11,9 +11,11 @@ import Jama.Matrix;
  * Features:
  * -Sigmoid activation function
  * -Backpropagation for training
- * -logistic cost function with regularization term
+ * -logistic and squared error cost functions
+ * -online learning
  * 
  * To add:
+ * -fix bug in batch learning
  * -gradient checking
  * -momentum
  * -weight decay
@@ -41,8 +43,8 @@ public class NeuralNetwork extends Classifier {
 		n.init(input, labels);
 		n.getTrainingError();
 		n.train(1000);
-		
-		double[] test =  {0.9, 0.1} ;
+
+		double[] test = { 0.9, 0.1 };
 		n.print(n.predict(new Matrix(test, test.length)));
 		//		n.getTrainingError();
 
@@ -65,6 +67,9 @@ public class NeuralNetwork extends Classifier {
 	public double epsilon = 1.0; // for weight initialization
 	public double regularizationCoefficient = 1.0;
 	public double learningRate = 1.0;
+
+	protected boolean useLogCostFunction = true; // should use a log cost function with sigmoid activation, use cross-entropy with softmax
+	protected boolean useOnlineLearning = false;
 	protected boolean regularizeWeights;
 
 	public NeuralNetwork(int[] numNeurons) {
@@ -79,7 +84,7 @@ public class NeuralNetwork extends Classifier {
 
 	private void initializeWeights() {
 		long seed = System.currentTimeMillis();
-		Random random = new Random(seed);
+		Random random = new Random(1123);
 
 		weights = new Matrix[numNeurons.length - 1];
 
@@ -109,11 +114,32 @@ public class NeuralNetwork extends Classifier {
 		train((int) params[0]);
 	}
 
+	private void initializeBigDelta() {
+		bigDelta = new Matrix[weights.length];
+		for (int i = 0; i < bigDelta.length; i++) {
+			bigDelta[i] = new Matrix(weights[i].getRowDimension(), weights[i].getColumnDimension());
+		}
+	}
+
+	private void updateWeights() {
+		for (int i = 0; i < weights.length; i++) {
+			Matrix delta = bigDelta[i].times(1 / data.getRowDimension());
+			weights[i] = weights[i].plus(bigDelta[i]);
+		}
+	}
+
 	public void train(int numIterations) {
 
 		for (int i = 0; i < numIterations; i++) {
-			for (int j = 0; j < data.getRowDimension(); j++)
+			initializeBigDelta();
+
+			for (int j = 0; j < data.getRowDimension(); j++) {
 				update(j);
+			}
+
+			if (!useOnlineLearning)
+				updateWeights();
+
 			getTrainingError();
 		}
 	}
@@ -145,9 +171,9 @@ public class NeuralNetwork extends Classifier {
 		//// dI0/d0b = Wb0
 		//// dE/dI0 = dE/dIb from previous layer
 		//// so dE/dIb = (dE/dI0)*Wb0*f'(Ib)
-		
+
 		Matrix[] updates = new Matrix[weights.length];
-		
+
 		Matrix[] deltas = new Matrix[totalLayers - 1];
 
 		// expected output
@@ -166,15 +192,16 @@ public class NeuralNetwork extends Classifier {
 		delta = delta.arrayTimes(ones); // 2E*f'(Ib)
 
 		deltas[deltas.length - 1] = delta; // save delta for hidden layer
-		
+
 		// calculate weight change for output layer
 		// weight += learningRate*(delta x prev_output)
 		Matrix weightChange = delta.times(learningRate); // leraningRate*dE/dIb
 		weightChange = weightChange.times(activations[activations.length - 2].transpose()); // gradient
-		
+
 		// save updates
 		updates[weights.length - 1] = weightChange;
-		
+		bigDelta[weights.length - 1] = bigDelta[weights.length - 1].plus(weightChange);
+
 		// compute delta terms for hidden layers
 		// delta = output*(1 - output)*(weights x prev_delta)
 		for (int j = activations.length - 2; j > 0; j--) {
@@ -188,31 +215,33 @@ public class NeuralNetwork extends Classifier {
 			ones = new Matrix(layer.getRowDimension(), 1, 1.0);
 			ones = ones.minus(layer);
 			ones = ones.arrayTimes(layer); // f'(Ib)
-			
+
 			// weights 
 			Matrix layerWeights = weights[j]; // Wb0
-			
+
 			// weights x prev_delta
 			layerWeights = layerWeights.transpose().times(prevDelta); // Wb0*(dE/dI0)
-			
+
 			// calculate delta
 			Matrix d = ones.arrayTimes(layerWeights); // dE/dIb
 
-			
 			// remove bias unit error
 			d = d.getMatrix(1, d.getRowDimension() - 1, 0, d.getColumnDimension() - 1);
 			deltas[j - 1] = d;
 
 			// calculate weight change
-			Matrix wc = d.times(learningRate).times(activations[j -1].transpose()); // learningRate*dE/dW
-			
+			Matrix wc = d.times(learningRate).times(activations[j - 1].transpose()); // learningRate*dE/dW
+
 			// save updates
 			updates[j - 1] = wc;
+			bigDelta[j - 1] = bigDelta[j - 1].plus(wc);
 		}
-		
-		// update weights
-		for(int w = 0; w < weights.length; w++) {
-			weights[w] = weights[w].plus(updates[w]);
+
+		// update weights for online learning
+		if (useOnlineLearning) {
+			for (int w = 0; w < weights.length; w++) {
+				weights[w] = weights[w].plus(updates[w]);
+			}
 		}
 	}
 
@@ -304,7 +333,7 @@ public class NeuralNetwork extends Classifier {
 			}
 		}
 
-//		print(predictions);
+		//		print(predictions);
 		return predictions;
 	}
 
@@ -323,37 +352,43 @@ public class NeuralNetwork extends Classifier {
 				double actual = labels.get(i, k);
 				double predicted = predictions.get(i, k);
 
-				if(predicted  == 1.0)
-					predicted = 0.999;
-				if(predicted == 0.0)
-					predicted = 0.0001;
-				
-				error += actual * Math.log(predicted) + (1 - actual) * Math.log(1 - predicted);
+				if (useLogCostFunction) {
+					if (predicted == 1.0)
+						predicted = 0.999;
+					if (predicted == 0.0)
+						predicted = 0.0001;
+
+					error += actual * Math.log(predicted) + (1 - actual) * Math.log(1 - predicted);
+				} else {
+					error += Math.pow((actual - predicted), 2);
+
+				}
 
 			}
 		}
 
-		error *= -1;
+		if (useLogCostFunction)
+			error *= -1;
 		error /= predictions.getRowDimension();
 		System.out.println("Error = " + error);
 
-//				double regTerm = 0.0;
-//				// calculate regularization term, sum of square of weights for all layers and all neurons (except bias units)
-//				for (int i = 0; i < weights.length; i++) { // go through each layer
-//					Matrix m = weights[i];
-//					for (int j = 0; j < m.getRowDimension(); j++) { // go through weights for each neuron
-//						for (int k = 1; k < m.getColumnDimension(); k++) { // start at 1 to skip bias unit
-//							regTerm += Math.pow(m.get(j, k), 2);
-//						}
-//					}
-//				}
-//		
-//				regTerm *= regularizationCoefficient;
-//				regTerm /= (2 * predictions.getRowDimension());
-//		
-//				error += regTerm;
-//		
-//				System.out.println("Error w/reg = " + error);
+		//				double regTerm = 0.0;
+		//				// calculate regularization term, sum of square of weights for all layers and all neurons (except bias units)
+		//				for (int i = 0; i < weights.length; i++) { // go through each layer
+		//					Matrix m = weights[i];
+		//					for (int j = 0; j < m.getRowDimension(); j++) { // go through weights for each neuron
+		//						for (int k = 1; k < m.getColumnDimension(); k++) { // start at 1 to skip bias unit
+		//							regTerm += Math.pow(m.get(j, k), 2);
+		//						}
+		//					}
+		//				}
+		//		
+		//				regTerm *= regularizationCoefficient;
+		//				regTerm /= (2 * predictions.getRowDimension());
+		//		
+		//				error += regTerm;
+		//		
+		//				System.out.println("Error w/reg = " + error);
 
 		return error;
 	}

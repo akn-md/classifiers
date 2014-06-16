@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.IOException;
 
 import nayak.Abstract.Classifier;
-import nayak.IO.Print;
 import nayak.Optimization.Crossvalidation;
+import nayak.Utility.Print;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartFrame;
