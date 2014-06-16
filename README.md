@@ -14,9 +14,10 @@ Features
 - PCA
 
 *Learning Algorithms*
+- kNN
 - Linear Regression
 - Logistic Regression
-- Nearest Neighbor
+- Nearest Neighbor with locality-sensitive hashing
 - Neural Network
 
 *Optimization*
@@ -34,5 +35,6 @@ Features
 Coming Soon
 -
 - SVM
+- t-SNE
 
 
