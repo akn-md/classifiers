@@ -48,6 +48,10 @@ public class rNN extends Classifier {
 
 		positiveCounts = new int[numPatterns];
 		negativeCounts = new int[numPatterns];
+		for(int i = 0; i < positiveCounts.length; i++) {
+			positiveCounts[i] = 1;
+			negativeCounts[i] = 1;
+		}
 	}
 
 	@Override
@@ -74,6 +78,7 @@ public class rNN extends Classifier {
 	public void train(double[] params) {
 		// TODO Auto-generated method stub
 		for (int n = 0; n < data.getRowDimension(); n++) {
+//			System.out.println(n);
 			Matrix m = data.getMatrix(n, n, 0, data.getColumnDimension() - 1);
 			int hash = calculateHash(m);
 
@@ -87,6 +92,11 @@ public class rNN extends Classifier {
 		
 //		Print.print(positiveCounts);
 //		Print.print(negativeCounts);
+		
+//		for(int i = 0; i < positiveCounts.length; i++) {
+//			if(positiveCounts[i] > negativeCounts[i])
+//				System.out.println(i);
+//		}
 	}
 
 	private int calculateHash(Matrix data) {
@@ -108,7 +118,7 @@ public class rNN extends Classifier {
 	}
 
 	@Override
-	protected Matrix getPredictions(Matrix data) {
+	public Matrix getPredictions(Matrix data) {
 		// TODO Auto-generated method stub
 		Matrix predictions = new Matrix(data.getRowDimension(), 1);
 		for(int n = 0; n < data.getRowDimension(); n++) {

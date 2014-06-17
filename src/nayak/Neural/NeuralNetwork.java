@@ -3,6 +3,9 @@ package nayak.Neural;
 import java.util.Random;
 
 import nayak.Abstract.Classifier;
+import nayak.IO.IO1L;
+import nayak.Utility.Print;
+import nayak.Utility.Timer;
 import Jama.Matrix;
 
 /**
@@ -34,18 +37,54 @@ import Jama.Matrix;
 public class NeuralNetwork extends Classifier {
 
 	public static void main(String[] args) {
-		int[] layers = { 2, 2, 1 };
-		NeuralNetwork n = new NeuralNetwork(layers);
-		double[][] in = { { 1.0, 1.0 }, { 1.0, 0.0 }, { 0.0, 0.0 }, { 0.0, 1.0 } };
-		Matrix input = new Matrix(in);
-		double[] l = { 1, 0, 1, 0 };
-		Matrix labels = new Matrix(l, l.length);
-		n.init(input, labels);
-		n.getTrainingError();
-		n.train(1000);
+		float[][][] audioFileSpectra = (float[][][]) IO1L.readObject("audioFileSpectra.ser");
+		int numTrainingExamples = audioFileSpectra.length;
+		System.out.println("NumTrainingExamples = " + numTrainingExamples);
+		int numBands = audioFileSpectra[0][0].length;
+		System.out.println("NumBands = " + numBands);
 
-		double[] test = { 0.9, 0.1 };
-		n.print(n.predict(new Matrix(test, test.length)));
+		double [][] input = new double[numTrainingExamples][numBands];
+		double[][] labels = new double[numTrainingExamples][numTrainingExamples];
+		
+		for (int i = 0; i < input.length; i++) {
+			float[][] data = audioFileSpectra[i];
+			for (int j = 0; j < data[0].length; j++) {
+				double sum = 0;
+				for (int k = 0; k < data.length; k++) {
+					sum += data[k][j];
+				}
+				double val = sum / data.length;
+				input[i][j] = val;
+			}
+//			Print.print(input[i]);
+			labels[i][i] = 1.0;
+//			Print.print(labels[i]);
+
+		}
+		
+		int[] layers = {input[0].length, 12, labels[0].length};
+		NeuralNetwork n = new NeuralNetwork(layers);
+		n.init(new Matrix(input), new Matrix(labels));
+//		n.getTrainingError();
+//		Print.print(n.getPredictions(new Matrix(input)));
+		
+		Timer.start();
+		n.train(10000);
+		Timer.stop();
+		Print.print(n.getPredictions(new Matrix(input)));
+
+//		int[] layers = { 2, 2, 1 };
+//		NeuralNetwork n = new NeuralNetwork(layers);
+//		double[][] in = { { 1.0, 1.0 }, { 1.0, 0.0 }, { 0.0, 0.0 }, { 0.0, 1.0 } };
+//		Matrix input = new Matrix(in);
+//		double[] l = { 1, 0, 1, 0 };
+//		Matrix labels = new Matrix(l, l.length);
+//		n.init(input, labels);
+//		n.getTrainingError();
+//		n.train(1000);
+
+//		double[] test = { 0.9, 0.1 };
+//		n.print(n.predict(new Matrix(test, test.length)));
 		//		n.getTrainingError();
 
 	}
@@ -69,7 +108,7 @@ public class NeuralNetwork extends Classifier {
 	public double learningRate = 1.0;
 
 	protected boolean useLogCostFunction = true; // should use a log cost function with sigmoid activation, use cross-entropy with softmax
-	protected boolean useOnlineLearning = false;
+	protected boolean useOnlineLearning = true;
 	protected boolean regularizeWeights;
 
 	public NeuralNetwork(int[] numNeurons) {

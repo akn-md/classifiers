@@ -27,7 +27,21 @@ Version 1.0.1 - 6/14/14
 Added:
 -fixed weight update bug
 
+Tested With:
+Higgs Project
+
 Results:
 ----Train Alg----
 Params: 30, 5, 1 - learning rate = 0.2
 10 iterations - 85.234 - Error = 0.42342194629073815
+
+Tested With:
+hoLla
+
+Results:
+----Train Alg----
+Params: 128, 12, 12 - learning rate = 1.0 - 12 training examples
+10 iterations - 0.124s - TE = 2.5390317606026422
+100 iterations - 0.351s - TE = 0.3123407211750536
+1000 iterations - 2.917s - TE = 0.08750033835952077
+10000 iterations - 18.403s - TE = 0.026696623458788076

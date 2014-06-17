@@ -9,7 +9,7 @@ import nayak.Utility.Print;
  * 
  * Features:
  * -unknown replacement with mean
- * -feature scaling (mean normalization)
+ * -feature scaling (0-1 normalization)
  * -adding column of ones (for regression)
  * -polynomial features
  * 
@@ -21,6 +21,7 @@ public class Preprocessor {
 	double[][] data;
 	double[] means;
 	double[] ranges;
+	double[] mins;
 	double unknown;
 
 	public Preprocessor(double[][] data, double unknown) {
@@ -32,7 +33,8 @@ public class Preprocessor {
 	private void init() {
 		means = new double[data[0].length];
 		ranges = new double[data[0].length];
-
+		mins = new double[data[0].length];
+		
 		for (int i = 0; i < data[0].length; i++) {
 			int count = 0;
 			double mean = 0.0;
@@ -51,6 +53,7 @@ public class Preprocessor {
 			double range = max - min;
 			means[i] = mean;
 			ranges[i] = range;
+			mins[i] = min;
 		}
 	}
 
@@ -67,13 +70,13 @@ public class Preprocessor {
 	}
 
 	/**
-	 * val = (original - mean)/range
+	 * val = (original - min)/range
 	 */
 	public void scaleFeatures() {
 		for (int i = 0; i < data.length; i++) {
 			for (int j = 0; j < data[0].length; j++) {
 				double d = data[i][j];
-				d -= means[j];
+				d -= mins[j];
 				d /= ranges[j];
 				data[i][j] = d;
 			}
