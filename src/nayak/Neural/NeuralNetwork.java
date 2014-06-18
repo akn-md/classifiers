@@ -4,6 +4,7 @@ import java.util.Random;
 
 import nayak.Abstract.Classifier;
 import nayak.IO.IO1L;
+import nayak.Optimization.Crossvalidation;
 import nayak.Utility.Print;
 import nayak.Utility.Timer;
 import Jama.Matrix;
@@ -19,6 +20,7 @@ import Jama.Matrix;
  * 
  * To add:
  * -fix bug in batch learning
+ * -add softmax for multiclass labeling
  * -gradient checking
  * -momentum
  * -weight decay
@@ -37,54 +39,90 @@ import Jama.Matrix;
 public class NeuralNetwork extends Classifier {
 
 	public static void main(String[] args) {
+		// training examples, num frames, num bands
 		float[][][] audioFileSpectra = (float[][][]) IO1L.readObject("audioFileSpectra.ser");
 		int numTrainingExamples = audioFileSpectra.length;
 		System.out.println("NumTrainingExamples = " + numTrainingExamples);
 		int numBands = audioFileSpectra[0][0].length;
 		System.out.println("NumBands = " + numBands);
 
-		double [][] input = new double[numTrainingExamples][numBands];
-		double[][] labels = new double[numTrainingExamples][numTrainingExamples];
-		
-		for (int i = 0; i < input.length; i++) {
-			float[][] data = audioFileSpectra[i];
-			for (int j = 0; j < data[0].length; j++) {
-				double sum = 0;
-				for (int k = 0; k < data.length; k++) {
-					sum += data[k][j];
-				}
-				double val = sum / data.length;
-				input[i][j] = val;
+		double[][] input, labels;
+
+		boolean useSum = false;
+		if (!useSum) {
+			// figure out total num examples
+			int numExamples = 0;
+			for (int i = 0; i < audioFileSpectra.length; i++) {
+				numExamples += audioFileSpectra[i].length;
 			}
-//			Print.print(input[i]);
-			labels[i][i] = 1.0;
-//			Print.print(labels[i]);
+			input = new double[numExamples][numBands];
+			labels = new double[numExamples][numTrainingExamples];
 
+			for (int i = 0; i < audioFileSpectra.length; i++) {
+				float[][] data = audioFileSpectra[i];
+				for (int j = 0; j < data.length; j++) {
+					for (int k = 0; k < data[j].length; k++) {
+						double val = data[j][k];
+						input[i * (data.length) + j][k] = val;
+					}
+					labels[i * (data.length) + j][i] = 1.0;
+				}
+			}
+		} else {
+			input = new double[numTrainingExamples][numBands];
+			labels = new double[numTrainingExamples][numTrainingExamples];
+
+			for (int i = 0; i < input.length; i++) {
+				float[][] data = audioFileSpectra[i];
+				for (int j = 0; j < data[0].length; j++) {
+					double sum = 0;
+					for (int k = 0; k < data.length; k++) {
+						sum += data[k][j];
+					}
+					double val = sum / data.length;
+					input[i][j] = val;
+				}
+				//			Print.print(input[i]);
+				labels[i][i] = 1.0;
+				//			Print.print(labels[i]);
+
+			}
 		}
-		
-		int[] layers = {input[0].length, 12, labels[0].length};
-		NeuralNetwork n = new NeuralNetwork(layers);
-		n.init(new Matrix(input), new Matrix(labels));
-//		n.getTrainingError();
-//		Print.print(n.getPredictions(new Matrix(input)));
-		
-		Timer.start();
-		n.train(10000);
-		Timer.stop();
-		Print.print(n.getPredictions(new Matrix(input)));
 
-//		int[] layers = { 2, 2, 1 };
-//		NeuralNetwork n = new NeuralNetwork(layers);
-//		double[][] in = { { 1.0, 1.0 }, { 1.0, 0.0 }, { 0.0, 0.0 }, { 0.0, 1.0 } };
-//		Matrix input = new Matrix(in);
-//		double[] l = { 1, 0, 1, 0 };
-//		Matrix labels = new Matrix(l, l.length);
-//		n.init(input, labels);
-//		n.getTrainingError();
-//		n.train(1000);
+		int[] layers = { input[0].length, 12, labels[0].length };
 
-//		double[] test = { 0.9, 0.1 };
-//		n.print(n.predict(new Matrix(test, test.length)));
+		double error = 0.0;
+		int numTrials = 100;
+		for (int i = 0; i < numTrials; i++) {
+			System.out.println("Trial " +  (i + 1));
+			Crossvalidation cv = new Crossvalidation(input, labels, System.currentTimeMillis());
+			cv.generateRandomSets(0.5, 0.5, 0.0);
+			NeuralNetwork n = new NeuralNetwork(layers);
+			n.init(new Matrix(cv.getTrainingSet()), new Matrix(cv.getTrainingLabels()));
+			//		n.getTrainingError();
+			//		Print.print(n.getPredictions(new Matrix(input)));
+
+			Timer.start();
+			n.train(100);
+			Timer.stop();
+			error += n.getError(new Matrix(cv.getValidationSet()), new Matrix(cv.getValidationLabels()));
+		}
+		System.out.println("Average error = " + (error/numTrials));
+		//		Print.write(n.getPredictions(new Matrix(cv.getValidationSet())), "predictions.txt");
+		//		Print.write(new Matrix(cv.getValidationLabels()), "actual.txt");
+		//		n.printOutput();
+		//		int[] layers = { 2, 2, 1 };
+		//		NeuralNetwork n = new NeuralNetwork(layers);
+		//		double[][] in = { { 1.0, 1.0 }, { 1.0, 0.0 }, { 0.0, 0.0 }, { 0.0, 1.0 } };
+		//		Matrix input = new Matrix(in);
+		//		double[] l = { 1, 0, 1, 0 };
+		//		Matrix labels = new Matrix(l, l.length);
+		//		n.init(input, labels);
+		//		n.getTrainingError();
+		//		n.train(1000);
+
+		//		double[] test = { 0.9, 0.1 };
+		//		n.print(n.predict(new Matrix(test, test.length)));
 		//		n.getTrainingError();
 
 	}
@@ -107,7 +145,8 @@ public class NeuralNetwork extends Classifier {
 	public double regularizationCoefficient = 1.0;
 	public double learningRate = 1.0;
 
-	protected boolean useLogCostFunction = true; // should use a log cost function with sigmoid activation, use cross-entropy with softmax
+	protected boolean useLogCostFunction = false; // should use a log cost function with sigmoid activation, use cross-entropy with softmax
+	protected boolean useNormalCostFunction = true;
 	protected boolean useOnlineLearning = true;
 	protected boolean regularizeWeights;
 
@@ -123,7 +162,7 @@ public class NeuralNetwork extends Classifier {
 
 	private void initializeWeights() {
 		long seed = System.currentTimeMillis();
-		Random random = new Random(1123);
+		Random random = new Random(seed);
 
 		weights = new Matrix[numNeurons.length - 1];
 
@@ -179,7 +218,7 @@ public class NeuralNetwork extends Classifier {
 			if (!useOnlineLearning)
 				updateWeights();
 
-			getTrainingError();
+//			getTrainingError();
 		}
 	}
 
@@ -398,6 +437,15 @@ public class NeuralNetwork extends Classifier {
 						predicted = 0.0001;
 
 					error += actual * Math.log(predicted) + (1 - actual) * Math.log(1 - predicted);
+				} else if (useNormalCostFunction) {
+					if (predicted > 0.5)
+						predicted = 1.0;
+					else
+						predicted = 0.0;
+
+					if (predicted != actual) {
+						error += 1.0;
+					}
 				} else {
 					error += Math.pow((actual - predicted), 2);
 
@@ -408,7 +456,7 @@ public class NeuralNetwork extends Classifier {
 
 		if (useLogCostFunction)
 			error *= -1;
-		error /= predictions.getRowDimension();
+		error /= (predictions.getRowDimension() * predictions.getColumnDimension());
 		System.out.println("Error = " + error);
 
 		//				double regTerm = 0.0;
@@ -430,6 +478,15 @@ public class NeuralNetwork extends Classifier {
 		//				System.out.println("Error w/reg = " + error);
 
 		return error;
+	}
+
+	public void printOutput() {
+		Matrix output = getPredictions(data);
+		for (int i = 0; i < output.getRowDimension(); i++) {
+			for (int k = 0; k < output.getColumnDimension(); k++) {
+				System.out.println("Predicted = " + output.get(i, k) + ", Actual = " + labels.get(i, k));
+			}
+		}
 	}
 
 }

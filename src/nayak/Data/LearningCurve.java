@@ -21,6 +21,8 @@ import Jama.Matrix;
  * Computes learning curves using the JFreeChart library.
  * @author Ashwin K Nayak
  *
+ * To Do:
+ * -update to work with new crossvalidation
  */
 public class LearningCurve {
 
@@ -34,7 +36,7 @@ public class LearningCurve {
 
 	public LearningCurve(Classifier c, double[] trainingParams) {
 		this.c = c;
-		this.cv = new Crossvalidation(c.getData().getArray(), c.getLabels().getColumnPackedCopy(), 1123);
+//		this.cv = new Crossvalidation(c.getData().getArray(), c.getLabels().getColumnPackedCopy(), 1123);
 		//		Print.print(cv.labels);
 		this.trainingParams = trainingParams;
 	}
@@ -48,14 +50,14 @@ public class LearningCurve {
 		int count = 1;
 		while (count < maxExamplesToUse) {
 			System.out.println("Training with " + (count) + " example(s)");
-			c.init(new Matrix(cv.getTrainingSet(count)), new Matrix(cv.getTrainingLabels(count), cv.getTrainingLabels(count).length));
+//			c.init(new Matrix(cv.getTrainingSet(count)), new Matrix(cv.getTrainingLabels(count), cv.getTrainingLabels(count).length));
 			c.train(trainingParams);
 			double trainError = c.getError(c.getData(), c.getLabels());
 			Matrix validationSet = new Matrix(cv.getValidationSet());
-			Matrix validationLabels = new Matrix(cv.getValidationLabels(), cv.getValidationLabels().length);
-			double validationError = c.getError(validationSet, validationLabels);
+//			Matrix validationLabels = new Matrix(cv.getValidationLabels(), cv.getValidationLabels().length);
+//			double validationError = c.getError(validationSet, validationLabels);
 			series1.add(count, trainError);
-			series2.add(count, validationError);
+//			series2.add(count, validationError);
 			count++;
 		}
 

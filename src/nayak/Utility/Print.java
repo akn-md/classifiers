@@ -2,6 +2,7 @@ package nayak.Utility;
 
 import java.util.Arrays;
 
+import nayak.IO.TextIO;
 import Jama.Matrix;
 
 /**
@@ -36,6 +37,18 @@ public class Print {
 				System.out.print(m.get(i, j) + "\t");
 			}
 			System.out.println();
+		}
+	}
+	
+	public static void write(Matrix m, String file) {
+		TextIO.writeFile(file);
+		
+		for (int i = 0; i < m.getRowDimension(); i++) {
+			TextIO.put("Row " + i + "\t");
+			for (int j = 0; j < m.getColumnDimension(); j++) {
+				TextIO.put(m.get(i, j) + "\t");
+			}
+			TextIO.putln();
 		}
 	}
 }

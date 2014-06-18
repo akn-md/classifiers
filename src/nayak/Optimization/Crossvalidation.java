@@ -19,22 +19,24 @@ public class Crossvalidation implements Serializable {
 	private static final long serialVersionUID = -8608044984964574087L;
 
 	public static void main(String[] args) {
-		double[][] data = { { 1.0, 0.0, 1.0 }, { 1.0, 0.0, 2.0 }, { 1.0, 0.0, -1.0 }, { 1.0, 0.0, -2.0 } };
-		double[] labels = { 0, 0, 1, 1 };
-		Crossvalidation cv = new Crossvalidation(data, labels, 1);
-		cv.generateRandomSets(0.5, 0.5, 0.0);
+//		double[][] data = { { 1.0, 0.0, 1.0 }, { 1.0, 0.0, 2.0 }, { 1.0, 0.0, -1.0 }, { 1.0, 0.0, -2.0 } };
+//		double[] labels = { 0, 0, 1, 1 };
+//		Crossvalidation cv = new Crossvalidation(data, labels, 1);
+//		cv.generateRandomSets(0.5, 0.5, 0.0);
 	}
 
 	double[][] data;
-	double[] labels;
+	double[][] labels;
+	int numOutputs;
 	Random random;
 
 	double[][] train, validation, test;
-	double[] trainLabels, validationLabels, testLabels;
+	double[][] trainLabels, validationLabels, testLabels;
 
-	public Crossvalidation(double[][] data, double[] labels, long seed) {
+	public Crossvalidation(double[][] data, double[][] labels, long seed) {
 		this.data = data;
 		this.labels = labels;
+		numOutputs = labels[0].length;
 		random = new Random(seed);
 	}
 
@@ -61,9 +63,9 @@ public class Crossvalidation implements Serializable {
 		validation = new double[numValidationExamples][data[0].length];
 		test = new double[numTestingExamples][data[0].length];
 
-		trainLabels = new double[train.length];
-		validationLabels = new double[validation.length];
-		testLabels = new double[test.length];
+		trainLabels = new double[train.length][numOutputs];
+		validationLabels = new double[validation.length][numOutputs];
+		testLabels = new double[test.length][numOutputs];
 
 		boolean[] used = new boolean[data.length];
 		int trainingExampleIndex;
@@ -124,8 +126,8 @@ public class Crossvalidation implements Serializable {
 		return d;
 	}
 
-	public double[] getTrainingLabels(int k) {
-		double[] d = new double[k];
+	public double[][] getTrainingLabels(int k) {
+		double[][] d = new double[k][numOutputs];
 		for(int i = 0; i < k; i++) {
 			d[i] = trainLabels[i];
 		}
@@ -140,7 +142,7 @@ public class Crossvalidation implements Serializable {
 		return train;
 	}
 	
-	public double[] getTrainingLabels() {
+	public double[][] getTrainingLabels() {
 		return trainLabels;
 	}
 	
@@ -148,7 +150,7 @@ public class Crossvalidation implements Serializable {
 		return validation;
 	}
 	
-	public double[] getValidationLabels() {
+	public double[][] getValidationLabels() {
 		return validationLabels;
 	}
 	
@@ -156,7 +158,7 @@ public class Crossvalidation implements Serializable {
 		return test;
 	}
 	
-	public double[] getTestingLabels() {
+	public double[][] getTestingLabels() {
 		return testLabels;
 	}
 
